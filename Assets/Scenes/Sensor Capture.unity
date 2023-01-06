@@ -2535,7 +2535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2836aa5f605b09446b9c821247c7866a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filenamePrefix: Logs/log
+  filenamePrefix: log
   logCount: 1
   statusText: {fileID: 2121340247}
 --- !u!4 &1804650029

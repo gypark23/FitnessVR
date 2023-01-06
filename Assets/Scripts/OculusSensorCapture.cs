@@ -58,7 +58,8 @@ public class OculusSensorCapture : MonoBehaviour
         var desiredCharacteristics = UnityEngine.XR.InputDeviceCharacteristics.TrackedDevice;
         UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, trackedDevices);
 
-        logWriter = new StreamWriter($"{filenamePrefix}-{logCount}.csv");
+        string path = Path.Combine(Application.persistentDataPath, $"{filenamePrefix}-{logCount}.csv");
+        logWriter = new StreamWriter(path);
         logWriter.WriteLine(GetLogHeader(trackedDevices));
 
         statusText.text = baseStatusText + "STATUS: Recording";
