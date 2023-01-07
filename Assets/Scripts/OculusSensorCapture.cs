@@ -22,7 +22,7 @@ public class OculusSensorCapture : MonoBehaviour
     private DateTime logStartTime;
 
     public TextMesh hudStatusText, wallStatusText, timerText;
-    const string baseStatusText = "Press the \"A\" button to start/stop recording data.\n";
+    const string baseStatusText = "Press \"A\" to start/stop recording data.\n";
 
     // Start is called before the first frame update
     void Start()
