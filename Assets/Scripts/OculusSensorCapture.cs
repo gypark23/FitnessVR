@@ -10,12 +10,18 @@ public class OculusSensorCapture : MonoBehaviour
 
     private StreamWriter logWriter;
     private bool isLogging;
-    private bool prevFrameButtonPressed;
-    public string filenamePrefix = "Logs/log";
 
-    public int logCount = 1;
+    private int curTrial;
+    
+    private (string, string)[] activities = {("STD", "Standing"), ("SIT", "Sitting"),
+        ("JOG", "Jogging"), ("STR", "Arms stretching"), ("OHD", "Arms overhead"), 
+        ("SPN", "Spinning")};
+    private int curActivityIdx = 0;
+    private int curGroupMemberNum = 1;
 
-    public TextMesh statusText;
+    private DateTime logStartTime;
+
+    public TextMesh hudStatusText, wallStatusText, timerText;
     const string baseStatusText = "Press the \"A\" button to start/stop recording data.\n";
 
     // Start is called before the first frame update
@@ -24,15 +30,17 @@ public class OculusSensorCapture : MonoBehaviour
         loggedVec3Characteristics = new Dictionary<String, UnityEngine.XR.InputFeatureUsage<UnityEngine.Vector3>> {
             {"vel", UnityEngine.XR.CommonUsages.deviceVelocity },
             {"angularVel", UnityEngine.XR.CommonUsages.deviceAngularVelocity },
+            {"pos", UnityEngine.XR.CommonUsages.devicePosition },
         };
 
         isLogging = false;
-        prevFrameButtonPressed = false;
+        curTrial = 0;
+        RefreshTrackedDevices();
     }
 
     string GetLogHeader(List<UnityEngine.XR.InputDevice> devices) 
     {
-        string logHeader = "timestamp,";
+        string logHeader = "time,";
         foreach (var device in devices)
         {
             foreach (var key in loggedVec3Characteristics.Keys)
@@ -51,31 +59,46 @@ public class OculusSensorCapture : MonoBehaviour
         return logHeader;
     }
 
-    void StartLogging()
+    string GetDataFilePrefix()
     {
-        // Refresh currently connected devices
+        return $"{activities[curActivityIdx].Item1}_P{curGroupMemberNum + 1}";
+    }
+
+    void RefreshTrackedDevices()
+    {
         trackedDevices = new List<UnityEngine.XR.InputDevice>();
         var desiredCharacteristics = UnityEngine.XR.InputDeviceCharacteristics.TrackedDevice;
         UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, trackedDevices);
+    }
 
-        string path = Path.Combine(Application.persistentDataPath, $"{filenamePrefix}-{logCount}.csv");
+    void StartLogging()
+    {
+        curTrial += 1;
+
+        RefreshTrackedDevices();
+
+        string filename = $"{GetDataFilePrefix()}_{curTrial:D2}.csv";
+        string path = Path.Combine(Application.persistentDataPath, filename);
         logWriter = new StreamWriter(path);
         logWriter.WriteLine(GetLogHeader(trackedDevices));
+        logStartTime = DateTime.UtcNow;
 
-        statusText.text = baseStatusText + "STATUS: Recording";
+        hudStatusText.text = baseStatusText + "STATUS: Recording";
     }
 
     void StopLogging()
     {
         logWriter.Close();
-        statusText.text = baseStatusText + "STATUS: Not recording";
-        logCount += 1;
+        hudStatusText.text = baseStatusText + "STATUS: Not recording";
+        
     }
 
     void LogMeasurements()
     {
-        DateTime recordedTime = DateTime.UtcNow;
-        string logValue = recordedTime.ToString("MM/dd/yyyy hh:mm:ss.fff") + ",";
+        TimeSpan timeDifference = DateTime.UtcNow - logStartTime;
+        timerText.text = $"{timeDifference.TotalSeconds:F2} s";
+
+        string logValue = $"{timeDifference.TotalMilliseconds},";
         foreach (var device in trackedDevices)
         {
             Vector3 recordedValue;
@@ -91,6 +114,12 @@ public class OculusSensorCapture : MonoBehaviour
             logValue += $"{recordedValue.x},{recordedValue.y},{recordedValue.z},";
         }
         logWriter.WriteLine(logValue);
+    }
+
+    int GetNumExistingDataFiles()
+    {
+        var matchingFiles = Directory.GetFiles(Application.persistentDataPath, $"{GetDataFilePrefix()}*");
+        return matchingFiles.Length;
     }
 
     string MapDeviceName(string deviceName)
@@ -121,18 +150,48 @@ public class OculusSensorCapture : MonoBehaviour
         }
     }
 
+    void SendImpulse(float amplitude, float duration)
+    {
+        foreach (var device in trackedDevices)
+        {
+            if (device.TryGetHapticCapabilities(out var capabilities) &&
+                capabilities.supportsImpulse)
+            {
+                device.SendHapticImpulse(0u, amplitude, duration);
+            }
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
-        // Update controller states
-        OVRInput.Update();
+        // Check which buttons on the right controller are pressed on the current frame
+        bool aButtonPressed = OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch);
+        bool frontTriggerPressed = OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+        bool sideTriggerPressed = OVRInput.GetDown(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
 
-        // Check if the "A" button on the right controller is held down
-        bool buttonPressed = OVRInput.Get(OVRInput.Button.One, OVRInput.Controller.RTouch);
+        if (frontTriggerPressed)
+        {
+            curActivityIdx = (curActivityIdx + 1) % activities.Length;
+        }
+
+        if (sideTriggerPressed)
+        {
+            curGroupMemberNum = (curGroupMemberNum + 1) % 3;
+        }
+
+        if (frontTriggerPressed || sideTriggerPressed)
+        {
+            curTrial = GetNumExistingDataFiles();
+            SendImpulse(0.1f, 0.05f);
+        }
+
+        wallStatusText.text = $"Activity: {activities[curActivityIdx].Item2}\n" + 
+            $"Group member: {curGroupMemberNum + 1}\nLast trial: {curTrial}"; 
         
         // Check if the button has been toggled on the current frame
         // (i.e. wasn't previously held down)
-        if (buttonPressed && !prevFrameButtonPressed)
+        if (aButtonPressed)
         {
             isLogging = !isLogging;
             if (isLogging)
@@ -142,10 +201,9 @@ public class OculusSensorCapture : MonoBehaviour
             {
                 StopLogging();
             }
-            
-        }
 
-        prevFrameButtonPressed = buttonPressed;
+            SendImpulse(0.2f, 0.1f);
+        }
 
         if (isLogging)
         {
