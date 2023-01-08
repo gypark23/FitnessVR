@@ -5,19 +5,21 @@ using UnityEngine;
 
 public class OculusSensorCapture : MonoBehaviour
 {
+    // List of logged sensor characteristics that are stored as 3D vectors
     private Dictionary<String, UnityEngine.XR.InputFeatureUsage<UnityEngine.Vector3>> loggedVec3Characteristics;
     private List<UnityEngine.XR.InputDevice> trackedDevices;
+    private List<string> dimensions = new List<string>{"x", "y", "z"};
 
     private StreamWriter logWriter;
-    private bool isLogging;
-
-    private int curTrial;
+    private bool isLogging = false;
     
     private (string, string)[] activities = {("STD", "Standing"), ("SIT", "Sitting"),
         ("JOG", "Jogging"), ("STR", "Arms stretching"), ("OHD", "Arms overhead"), 
-        ("SPN", "Spinning")};
+        ("TWS", "Twisting")};
+
     private int curActivityIdx = 0;
     private int curGroupMemberNum = 1;
+    private int curTrial = 0;
 
     private DateTime logStartTime;
 
@@ -33,42 +35,26 @@ public class OculusSensorCapture : MonoBehaviour
             {"pos", UnityEngine.XR.CommonUsages.devicePosition },
         };
 
-        isLogging = false;
-        curTrial = 0;
         RefreshTrackedDevices();
     }
-
-    string GetLogHeader(List<UnityEngine.XR.InputDevice> devices) 
-    {
-        string logHeader = "time,";
-        foreach (var device in devices)
-        {
-            foreach (var key in loggedVec3Characteristics.Keys)
-            {
-                foreach (var axis in new List<string>{"x", "y", "z"})
-                {
-                    logHeader += $"{MapDeviceName(device.name)}_{key}.{axis},";
-                }
-            }
-            foreach (var axis in new List<string>{"x", "y", "z"})
-            {
-                logHeader += $"{MapDeviceName(device.name)}_rot.{axis},";
-            }
-        }
-
-        return logHeader;
-    }
-
-    string GetDataFilePrefix()
-    {
-        return $"{activities[curActivityIdx].Item1}_P{curGroupMemberNum + 1}";
-    }
-
+    
+    /// <summary>
+    /// Reload the list of devices that have data logged based on connected devices.
+    /// </summary>
     void RefreshTrackedDevices()
     {
         trackedDevices = new List<UnityEngine.XR.InputDevice>();
         var desiredCharacteristics = UnityEngine.XR.InputDeviceCharacteristics.TrackedDevice;
         UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, trackedDevices);
+    }
+    
+    /// <summary>
+    /// Get the filename prefix of a logged data file, based on the selected activity
+    /// and group member.
+    /// </summary>
+    string GetDataFilePrefix()
+    {
+        return $"{activities[curActivityIdx].Item1}_P{curGroupMemberNum + 1}";
     }
 
     void StartLogging()
@@ -79,10 +65,11 @@ public class OculusSensorCapture : MonoBehaviour
 
         string filename = $"{GetDataFilePrefix()}_{curTrial:D2}.csv";
         string path = Path.Combine(Application.persistentDataPath, filename);
+        
         logWriter = new StreamWriter(path);
         logWriter.WriteLine(GetLogHeader(trackedDevices));
+        
         logStartTime = DateTime.UtcNow;
-
         hudStatusText.text = baseStatusText + "STATUS: Recording";
     }
 
@@ -90,11 +77,38 @@ public class OculusSensorCapture : MonoBehaviour
     {
         logWriter.Close();
         hudStatusText.text = baseStatusText + "STATUS: Not recording";
-        
     }
 
-    void LogMeasurements()
+    /// <summary>
+    /// Fetch the header of the CSV sensor log, based on the current tracked devices,
+    /// available attributes, and dimensions of each attribute.
+    /// </summary>
+    string GetLogHeader(List<UnityEngine.XR.InputDevice> devices) 
     {
+        string logHeader = "time,";
+        foreach (var device in devices)
+        {
+            foreach (var key in loggedVec3Characteristics.Keys)
+            {
+                foreach (var axis in dimensions)
+                {
+                    logHeader += $"{MapDeviceName(device.name)}_{key}.{axis},";
+                }
+            }
+            foreach (var axis in dimensions)
+            {
+                logHeader += $"{MapDeviceName(device.name)}_rot.{axis},";
+            }
+        }
+
+        return logHeader;
+    }
+
+    /// <summary>Write the current sensor values to the open CSV file.</summary>
+    void LogAttributes()
+    {
+        // Display the current time on the timer on the wall, then log it
+        // in the CSV file
         TimeSpan timeDifference = DateTime.UtcNow - logStartTime;
         timerText.text = $"{timeDifference.TotalSeconds:F2} s";
 
@@ -108,20 +122,24 @@ public class OculusSensorCapture : MonoBehaviour
                 logValue += $"{recordedValue.x},{recordedValue.y},{recordedValue.z},";
             }
 
+            // Rotation data is recorded as a quaternion, then converted into XYZ angles
             Quaternion rotationQuaternion;
             device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.deviceRotation, out rotationQuaternion);
             recordedValue = rotationQuaternion.eulerAngles;
             logValue += $"{recordedValue.x},{recordedValue.y},{recordedValue.z},";
         }
+
         logWriter.WriteLine(logValue);
     }
 
+    /// <returns>The number of saved data files for the current user and activity.</returns>
     int GetNumExistingDataFiles()
     {
         var matchingFiles = Directory.GetFiles(Application.persistentDataPath, $"{GetDataFilePrefix()}*");
         return matchingFiles.Length;
     }
 
+    /// <returns>The CSV header string corresponding to a given Unity device name.</returns>
     string MapDeviceName(string deviceName)
     {
         if (deviceName.Contains("Left"))
@@ -142,14 +160,9 @@ public class OculusSensorCapture : MonoBehaviour
         return "unknown";
     }
 
-    void OnDestroy()
-    {
-        if (logWriter != null && logWriter.BaseStream != null)
-        {
-            logWriter.Close();
-        }
-    }
-
+    /// <summary>
+    /// Send a haptic vibration of the given amplitude and duration to all connected controllers.
+    /// </summary>
     void SendImpulse(float amplitude, float duration)
     {
         foreach (var device in trackedDevices)
@@ -170,27 +183,31 @@ public class OculusSensorCapture : MonoBehaviour
         bool frontTriggerPressed = OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
         bool sideTriggerPressed = OVRInput.GetDown(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
 
+        // Change selected activity
         if (frontTriggerPressed)
         {
             curActivityIdx = (curActivityIdx + 1) % activities.Length;
         }
 
+        // Change selected group member
         if (sideTriggerPressed)
         {
             curGroupMemberNum = (curGroupMemberNum + 1) % 3;
         }
 
+        // Send a small vibration for feedback and refresh the number of collected
+        // data files on the UI
         if (frontTriggerPressed || sideTriggerPressed)
         {
             curTrial = GetNumExistingDataFiles();
             SendImpulse(0.1f, 0.05f);
         }
 
+        // Change the wall UI text
         wallStatusText.text = $"Activity: {activities[curActivityIdx].Item2}\n" + 
             $"Group member: {curGroupMemberNum + 1}\nLast trial: {curTrial}"; 
         
-        // Check if the button has been toggled on the current frame
-        // (i.e. wasn't previously held down)
+        // Toggle logging on/off
         if (aButtonPressed)
         {
             isLogging = !isLogging;
@@ -205,9 +222,22 @@ public class OculusSensorCapture : MonoBehaviour
             SendImpulse(0.2f, 0.1f);
         }
 
+        // Log attributes once for each frame if we are recording
         if (isLogging)
         {
-            LogMeasurements();
+            LogAttributes();
+        }
+    }
+    
+    /// <summary>
+    /// Automatically close a log file if the app is closed while recording is in progress.
+    /// Run when the scene is destroyed.
+    /// </summary>
+    void OnDestroy()
+    {
+        if (logWriter != null && logWriter.BaseStream != null)
+        {
+            logWriter.Close();
         }
     }
 
