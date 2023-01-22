@@ -34,10 +34,10 @@ def visualize_sensor_trace(csv_file: str, attribute: str):
 
 
 #summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
-# visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
+#visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
 # Define additional functions as needed here!
 
-def combine_samples(activity: str, attribute: str):
+def combine_samples(activity: str):
     # get all csv files
     path = "../Data/Lab1/"
     csv_files = glob.glob(os.path.join(path, "*.csv"))
@@ -47,7 +47,6 @@ def combine_samples(activity: str, attribute: str):
         df = pd.read_csv(file)
 
         name = file.split("\\")[-1].split('_')[0].rsplit('/', 1)[-1]
-        print(name)
         if name == activity:
             df_list.append(df)
     activity_df = pd.concat(df_list)
@@ -65,4 +64,4 @@ def combine_samples(activity: str, attribute: str):
     print(ret)
     return ret
 
-combine_samples("JOG", "controller_left_vel.x")
+combine_samples("JOG")
