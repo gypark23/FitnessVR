@@ -33,7 +33,7 @@ def visualize_sensor_trace(csv_file: str, attribute: str):
         
 
 
-# summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
+#summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
 # visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
 # Define additional functions as needed here!
 
@@ -51,12 +51,18 @@ def combine_samples(activity: str, attribute: str):
         if name == activity:
             df_list.append(df)
     activity_df = pd.concat(df_list)
+    
+    vals = []
+    names = []
+    for (columnName, columnData) in activity_df.iteritems():
+        if columnName in ('time', 'Unnamed: 37'):
+            continue
+        
+        names.append(columnName)
+        vals.append([columnData.mean(), columnData.var()])
 
-
-    ax = activity_df.plot(x = 'time', y = attribute)
-    ax.set_xlabel("Time (milliseconds)")
-    ax.set_ylabel(attribute)
-    plt.show()
-    pass
+    ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
+    print(ret)
+    return ret
 
 combine_samples("JOG", "controller_left_vel.x")
