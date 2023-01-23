@@ -6,9 +6,12 @@ import numpy as np
 
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
+    #list of lists of means and variances
     vals = []
+    #list of column (attribute) names
     names = []
     for (columnName, columnData) in df.iteritems():
+        #exclude average of time or unnamed column
         if columnName in ('time', 'Unnamed: 37'):
             continue
         
@@ -19,23 +22,68 @@ def summarize_sensor_trace(csv_file: str):
     
     ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
     #print(ret)
+    #returns a dataframe of means and variances of each attribute
     return ret
     
     pass
 
-def visualize_sensor_trace(csv_file: str, attribute: str):
-    df = pd.read_csv(csv_file)
-    ax = df.plot(x = 'time', y = attribute)
-    ax.set_xlabel("Time (milliseconds)")
-    ax.set_ylabel(attribute)
-    plt.show()
+# prints a plot of time vs any given attribute if single_attribute_mode
+# compares multiple attributes and activities if single_attribute_mode is False
+def visualize_sensor_trace(csv_file: str = "", attribute: str = "", single_attribute_mode : bool = True):
+    #if the function is required to plot a time vs single attribute
+    if single_attribute_mode:
+        df = pd.read_csv(csv_file)
+        ax = df.plot(x = 'time', y = attribute)
+        ax.set_xlabel("Time (milliseconds)")
+        ax.set_ylabel(attribute)
+        plt.show()
+    else:
+        Standing = combine_samples("STD")
+        Sitting = combine_samples("SIT")
+        Jogging = combine_samples("JOG")
+        Stretching = combine_samples("STR")
+        Overhead = combine_samples("OHD")
+        Twisting = combine_samples("TWS")
+
+        dataframes = [Standing, Sitting, Jogging, Stretching, Overhead, Twisting]
+
+        # Output graphs for variance of different activities
+        compare_attributes(dataframes, 0, 3, "Mean")
+        compare_attributes(dataframes, 3, 6, "Mean")
+        compare_attributes(dataframes, 6, 9, "Mean")
+        compare_attributes(dataframes, 9, 12, "Mean")
+        compare_attributes(dataframes, 12, 15, "Mean")
+        compare_attributes(dataframes, 15, 18, "Mean")
+        compare_attributes(dataframes, 18, 21, "Mean")
+        compare_attributes(dataframes, 21, 24, "Mean")
+        compare_attributes(dataframes, 24, 27, "Mean")
+        compare_attributes(dataframes, 27, 30, "Mean")
+        compare_attributes(dataframes, 30, 33, "Mean")
+        compare_attributes(dataframes, 33, 36, "Mean")
+
+        # Output graphs for variance of different activities
+        compare_attributes(dataframes, 0, 3, "Variance")
+        compare_attributes(dataframes, 3, 6, "Variance")
+        compare_attributes(dataframes, 6, 9, "Variance")
+        compare_attributes(dataframes, 9, 12, "Variance")
+        compare_attributes(dataframes, 12, 15, "Variance")
+        compare_attributes(dataframes, 15, 18, "Variance")
+        compare_attributes(dataframes, 18, 21, "Variance")
+        compare_attributes(dataframes, 21, 24, "Variance")
+        compare_attributes(dataframes, 24, 27, "Variance")
+        compare_attributes(dataframes, 27, 30, "Variance")
+        compare_attributes(dataframes, 30, 33, "Variance")
+        compare_attributes(dataframes, 33, 36, "Variance")
+                
     pass
             
         
-
+#demonstration of summarize_sensor_trace and visualize_sensor_trace
 
 summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
-#visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
+visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
+
+
 # Define additional functions as needed here!
 
 
@@ -108,7 +156,7 @@ def compare_attributes(dataframes, start, end, stat):
         plt.bar(r + i*barWidth, means, color=colors[i%6], width=barWidth, edgecolor='white', label=activities[i])
 
     # Add labels to the x-axis
-    plt.xticks(r + len(dataframes)*barWidth/2, Standing.index[start:end])
+    plt.xticks(r + len(dataframes)*barWidth/2, dataframes[0].index[start:end])
 
     # Add a y-axis label
     plt.ylabel(stat)
@@ -119,39 +167,6 @@ def compare_attributes(dataframes, start, end, stat):
     # Display the bar chart
     plt.show()
 
-Standing = combine_samples("STD")
-Sitting = combine_samples("SIT")
-Jogging = combine_samples("JOG")
-Stretching = combine_samples("STR")
-Overhead = combine_samples("OHD")
-Twisting = combine_samples("TWS")
 
-dataframes = [Standing, Sitting, Jogging, Stretching, Overhead, Twisting]
-
-# Output graphs for variance of different activities
-compare_attributes(dataframes, 0, 3, "Mean")
-compare_attributes(dataframes, 3, 6, "Mean")
-compare_attributes(dataframes, 6, 9, "Mean")
-compare_attributes(dataframes, 9, 12, "Mean")
-compare_attributes(dataframes, 12, 15, "Mean")
-compare_attributes(dataframes, 15, 18, "Mean")
-compare_attributes(dataframes, 18, 21, "Mean")
-compare_attributes(dataframes, 21, 24, "Mean")
-compare_attributes(dataframes, 24, 27, "Mean")
-compare_attributes(dataframes, 27, 30, "Mean")
-compare_attributes(dataframes, 30, 33, "Mean")
-compare_attributes(dataframes, 33, 36, "Mean")
-
-# Output graphs for variance of different activities
-compare_attributes(dataframes, 0, 3, "Variance")
-compare_attributes(dataframes, 3, 6, "Variance")
-compare_attributes(dataframes, 6, 9, "Variance")
-compare_attributes(dataframes, 9, 12, "Variance")
-compare_attributes(dataframes, 12, 15, "Variance")
-compare_attributes(dataframes, 15, 18, "Variance")
-compare_attributes(dataframes, 18, 21, "Variance")
-compare_attributes(dataframes, 21, 24, "Variance")
-compare_attributes(dataframes, 24, 27, "Variance")
-compare_attributes(dataframes, 27, 30, "Variance")
-compare_attributes(dataframes, 30, 33, "Variance")
-compare_attributes(dataframes, 33, 36, "Variance")
+# use visualize_sensor_trace again, but this time print a summary of comparison of multiple attributes and activities
+visualize_sensor_trace(single_attribute_mode = False)
