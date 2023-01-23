@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import glob
 import matplotlib.pyplot as plt
+import numpy as np
 
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
@@ -73,9 +74,84 @@ def combine_samples(activity: str):
     # print(ret)
     # return ret
 
-combine_samples("JOG")
-# combine_samples("OHD")
-# combine_samples("SIT")
-# combine_samples("STD")
-# combine_samples("STR")
-# combine_samples("TWS")
+# STD	Standing	VideoLinks to an external site.
+# SIT	Sitting	VideoLinks to an external site.
+# JOG	Jogging	VideoLinks to an external site.
+# STR	Arms stretching	VideoLinks to an external site.
+# OHD	Arms overhead	VideoLinks to an external site.
+# TWS	Twisting
+
+def compare_attributes(dataframes, start, end, stat):
+
+    # Get the number of indexes in a dataframe
+    num_indexes = end - start
+    # Create a list of colors for the bars
+    colors = ['b', 'g', 'r', 'c', 'm', 'y']
+
+    activities = ["Standing", "Sitting", "Jogging", "Stretching", "Overhead", "Twisting"]
+
+    # Set width of each bar
+    barWidth = 0.4/num_indexes
+
+    # Set position of bar on X axis
+    r = np.arange(num_indexes)
+
+    # Create a loop to iterate through each dataframe
+    for i in range(len(dataframes)):
+        # Initialize an empty list to store the mean values of the current dataframe
+        means = []
+        # Iterate through each index
+        for j in range(start, end):
+            # Extract the mean values of the current index in the dataframe
+            means.append(dataframes[i].iloc[j][stat])
+        # Make the plot
+        plt.bar(r + i*barWidth, means, color=colors[i%6], width=barWidth, edgecolor='white', label=activities[i])
+
+    # Add labels to the x-axis
+    plt.xticks(r + len(dataframes)*barWidth/2, Standing.index[start:end])
+
+    # Add a y-axis label
+    plt.ylabel(stat)
+
+    # Add a legend
+    plt.legend()
+
+    # Display the bar chart
+    plt.show()
+
+Standing = combine_samples("STD")
+Sitting = combine_samples("SIT")
+Jogging = combine_samples("JOG")
+Stretching = combine_samples("STR")
+Overhead = combine_samples("OHD")
+Twisting = combine_samples("TWS")
+
+dataframes = [Standing, Sitting, Jogging, Stretching, Overhead, Twisting]
+
+# Output graphs for variance of different activities
+compare_attributes(dataframes, 0, 3, "Mean")
+compare_attributes(dataframes, 3, 6, "Mean")
+compare_attributes(dataframes, 6, 9, "Mean")
+compare_attributes(dataframes, 9, 12, "Mean")
+compare_attributes(dataframes, 12, 15, "Mean")
+compare_attributes(dataframes, 15, 18, "Mean")
+compare_attributes(dataframes, 18, 21, "Mean")
+compare_attributes(dataframes, 21, 24, "Mean")
+compare_attributes(dataframes, 24, 27, "Mean")
+compare_attributes(dataframes, 27, 30, "Mean")
+compare_attributes(dataframes, 30, 33, "Mean")
+compare_attributes(dataframes, 33, 36, "Mean")
+
+# Output graphs for variance of different activities
+compare_attributes(dataframes, 0, 3, "Variance")
+compare_attributes(dataframes, 3, 6, "Variance")
+compare_attributes(dataframes, 6, 9, "Variance")
+compare_attributes(dataframes, 9, 12, "Variance")
+compare_attributes(dataframes, 12, 15, "Variance")
+compare_attributes(dataframes, 15, 18, "Variance")
+compare_attributes(dataframes, 18, 21, "Variance")
+compare_attributes(dataframes, 21, 24, "Variance")
+compare_attributes(dataframes, 24, 27, "Variance")
+compare_attributes(dataframes, 27, 30, "Variance")
+compare_attributes(dataframes, 30, 33, "Variance")
+compare_attributes(dataframes, 33, 36, "Variance")
