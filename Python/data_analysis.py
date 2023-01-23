@@ -6,12 +6,12 @@ import numpy as np
 
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
-    #list of lists of means and variances
+    # list of lists of means and variances
     vals = []
-    #list of column (attribute) names
+    # list of column (attribute) names
     names = []
     for (columnName, columnData) in df.iteritems():
-        #exclude average of time or unnamed column
+        # exclude average of time or unnamed column
         if columnName in ('time', 'Unnamed: 37'):
             continue
         
@@ -21,8 +21,8 @@ def summarize_sensor_trace(csv_file: str):
         # print("Variance of " + columnName + ": " + str(columnData.var()))
     
     ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
-    #print(ret)
-    #returns a dataframe of means and variances of each attribute
+    # print(ret)
+    # returns a dataframe of means and variances of each attribute
     return ret
     
     pass
@@ -30,14 +30,16 @@ def summarize_sensor_trace(csv_file: str):
 # prints a plot of time vs any given attribute if single_attribute_mode
 # compares multiple attributes and activities if single_attribute_mode is False
 def visualize_sensor_trace(csv_file: str = "", attribute: str = "", single_attribute_mode : bool = True):
-    #if the function is required to plot a time vs single attribute
+    # if the function is required to plot a time vs single attribute
     if single_attribute_mode:
+        # plot a attribute vs time plot
         df = pd.read_csv(csv_file)
         ax = df.plot(x = 'time', y = attribute)
         ax.set_xlabel("Time (milliseconds)")
         ax.set_ylabel(attribute)
         plt.show()
     else:
+        # combine data samples for multiple activities 
         Standing = combine_samples("STD")
         Sitting = combine_samples("SIT")
         Jogging = combine_samples("JOG")
@@ -81,14 +83,13 @@ def visualize_sensor_trace(csv_file: str = "", attribute: str = "", single_attri
 #demonstration of summarize_sensor_trace and visualize_sensor_trace
 
 summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
-visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
+visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x', True)
 
 
 # Define additional functions as needed here!
 
 
-# returns a dataframe given the activity that has average mean and average variance
-# for each attribute
+# returns a dataframe given the activity that has average mean and average variance for each attribute
 def combine_samples(activity: str):
     # get all csv files
     path = "../Data/Lab1/"
@@ -99,12 +100,12 @@ def combine_samples(activity: str):
         # df = pd.read_csv(file)
 
         name = file.split("\\")[-1].split('_')[0].rsplit('/', 1)[-1]
-        #for the activity csv
+        # for the activity csv
         if name == activity:
-            #calculate average and variance for each attribute
+            # calculate average and variance for each attribute
             df = summarize_sensor_trace(file)          
             df_list.append(df)
-    #combine samples and calculate mean of means and mean of variances
+    # combine samples and calculate mean of means and mean of variances
     activity_df = pd.concat(df_list).groupby(level=0, sort = False).mean()
     
     print("------ Summary of " + activity + "-------")
