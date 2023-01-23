@@ -17,7 +17,7 @@ def summarize_sensor_trace(csv_file: str):
         # print("Variance of " + columnName + ": " + str(columnData.var()))
     
     ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
-    print(ret)
+    #print(ret)
     return ret
     
     pass
@@ -33,35 +33,49 @@ def visualize_sensor_trace(csv_file: str, attribute: str):
         
 
 
-#summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
+summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
 #visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x')
 # Define additional functions as needed here!
 
+
+# returns a dataframe given the activity that has average mean and average variance
+# for each attribute
 def combine_samples(activity: str):
     # get all csv files
     path = "../Data/Lab1/"
     csv_files = glob.glob(os.path.join(path, "*.csv"))
     df_list = []
-    # combine data for activity of interest into one df
+
     for file in csv_files:
-        df = pd.read_csv(file)
+        # df = pd.read_csv(file)
 
         name = file.split("\\")[-1].split('_')[0].rsplit('/', 1)[-1]
+        #for the activity csv
         if name == activity:
+            #calculate average and variance for each attribute
+            df = summarize_sensor_trace(file)          
             df_list.append(df)
-    activity_df = pd.concat(df_list)
+    #combine samples and calculate mean of means and mean of variances
+    activity_df = pd.concat(df_list).groupby(level=0, sort = False).mean()
     
-    vals = []
-    names = []
-    for (columnName, columnData) in activity_df.iteritems():
-        if columnName in ('time', 'Unnamed: 37'):
-            continue
-        
-        names.append(columnName)
-        vals.append([columnData.mean(), columnData.var()])
+    print("------ Summary of " + activity + "-------")
+    print(activity_df)
 
-    ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
-    print(ret)
-    return ret
+    return activity_df
+    # for (columnName, columnData) in activity_df.iteritems():
+    #     if columnName in ('time', 'Unnamed: 37'):
+    #         continue
+        
+    #     names.append(columnName)
+    #     vals.append([columnData.mean(), columnData.var()])
+
+    # ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
+    # print(ret)
+    # return ret
 
 combine_samples("JOG")
+# combine_samples("OHD")
+# combine_samples("SIT")
+# combine_samples("STD")
+# combine_samples("STR")
+# combine_samples("TWS")
