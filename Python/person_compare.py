@@ -1,3 +1,7 @@
+# This file provides functions to compare personal differences when doing the same activities
+# It outputs a series of plots of the comparison results 
+
+
 import pandas as pd
 import os
 import glob
