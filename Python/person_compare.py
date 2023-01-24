@@ -13,6 +13,7 @@ from feature_list import features
 
 dir = "../Data/Lab1_divided/"
 
+
 # combine the samples from the same person
 def combine_personal_samples(activity, path):
     # get all csv files
@@ -33,8 +34,6 @@ def combine_personal_samples(activity, path):
     activity_df = pd.concat(df_list).groupby(level=0, sort = False).mean()
 
     return activity_df
-
-
 
 
 # compare two persons by difference in percentage
@@ -68,22 +67,27 @@ def compare_activity(activity_df1, activity_df2, plot, title):
 
 
 # ============================ testing ==============================
-# P1 vs P2 for jogging
-p1_jog = combine_personal_samples("JOG", "P1")
-p2_jog = combine_personal_samples("JOG", "P2")
-mean_diff, var_diff = compare_activity(p1_jog, p2_jog, True, "p1_jog vs p2_jog")
+# loading averaged data from all users
+standard_jog = DA.combine_samples("JOG")
+standard_str = DA.combine_samples("STR")
+standard_ohd = DA.combine_samples("OHD")
+standard_tws = DA.combine_samples("TWS")
+standard_std = DA.combine_samples("STD")
 
 # P2 vs P3 for overhead
 p2_ohd = combine_personal_samples("OHD", "P2")
 p3_ohd = combine_personal_samples("OHD", "P3")
 mean_diff, var_diff = compare_activity(p2_ohd, p3_ohd, True, "p2_ohd vs p3_ohd")
 
-# P1 vs P3 for twisting
-p1_tws = combine_personal_samples("TWS", "P2")
-p2_tws = combine_personal_samples("TWS", "P3")
-mean_diff, var_diff = compare_activity(p1_tws, p2_tws, True, "p1_tws vs p3_tws")
-
 # P1 vs P3 for standing
 p1_std = combine_personal_samples("STD", "P1")
 p3_std = combine_personal_samples("STD", "P3")
 mean_diff, var_diff = compare_activity(p1_std, p3_std, True, "p1_std vs p3_std")
+
+# P2 vs standard for stretching
+p2_str = combine_personal_samples("STR", "P2")
+mean_diff, var_diff = compare_activity(p2_str, standard_str, True, "p2_str vs standard_str")
+
+# P3 vs standard for twisting
+p3_tws = combine_personal_samples("TWS", "P3")
+mean_diff, var_diff = compare_activity(p3_tws, standard_tws, True, "p3_tws vs standard_tws")
