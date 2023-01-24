@@ -1,3 +1,7 @@
+# This file provides classes and functions for classifying an activity
+# This file produces a chart for classification results.
+
+
 import pandas as pd
 import os
 import glob
