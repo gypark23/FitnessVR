@@ -134,9 +134,14 @@ mean_weights[8] = 3
 # raise the importance of head pos var
 var_weights[6] = 3
 
-# raise the importance of controller rot, pos var
+# raise the importance of controller rot, pos, angvel var
+var_weights[15] = 3
 var_weights[21] = 3
 var_weights[33] = 3
+
+var_weights[27] = 3
+var_weights[19] = 3
+var_weights[30] = 3
 
 # build list of weights
 new_weights = [mean_superweight, mean_weights, var_superweight, var_weights]
