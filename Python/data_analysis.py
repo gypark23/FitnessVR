@@ -3,6 +3,7 @@ import os
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
+from feature_list import features
 
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
@@ -131,3 +132,37 @@ def compare_attributes(dataframes, start, end, stat):
 
 # use visualize_sensor_trace again, but this time print a summary of comparison of multiple attributes and activities
 visualize_sensor_trace(single_attribute_mode = False)
+
+
+# given a rowNum (sensor attribute, i.e row 1 = headset_vel.y)
+def coefficient_of_variation(rowNum: int):
+    Standing = combine_samples("STD").iloc[rowNum]
+    Sitting = combine_samples("SIT").iloc[rowNum]
+    Jogging = combine_samples("JOG").iloc[rowNum]
+    Stretching = combine_samples("STR").iloc[rowNum]
+    Overhead = combine_samples("OHD").iloc[rowNum]
+    Twisting = combine_samples("TWS").iloc[rowNum]
+
+    # Calculate CV = sqrt(variance) / mean
+    data = {"Activities" : ["Standing", "Sitting", "Jogging", "Stretching", "Overhead", "Twisting"],
+    "Coefficient of Variation": [Standing["Variance"] ** 0.5 / Standing["Mean"], 
+    Sitting["Variance"] ** 0.5 / Sitting["Mean"],
+    Jogging["Variance"] ** 0.5 / Jogging["Mean"],
+    Stretching["Variance"] ** 0.5 / Stretching["Mean"],
+    Overhead["Variance"] ** 0.5 / Overhead["Mean"],
+    Twisting["Variance"] ** 0.5 / Twisting["Mean"]]}
+
+    # Plot
+    df = pd.DataFrame(data)
+    colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow']
+    df.plot(kind="bar", x="Activities", y="Coefficient of Variation", color = colors, legend = False)
+    plt.xticks(rotation=-5)
+    plt.ylabel('Coefficient of Variation of ' + str(features[rowNum]))
+    plt.show()
+    print(df)
+
+
+# demonstrate how CV could be used to determine an activity
+# row 1 = heaset_vel.y
+coefficient_of_variation(1)
+
