@@ -11,6 +11,9 @@
 /[Mm]emoryCaptures/
 /.vscode/
 
+Python/__pycache__/
+.DS_Store
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
 
