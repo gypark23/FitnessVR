@@ -5,10 +5,7 @@ using UnityEngine;
 
 public class OculusSensorCapture : MonoBehaviour
 {
-    // List of logged sensor characteristics that are stored as 3D vectors
-    private Dictionary<String, UnityEngine.XR.InputFeatureUsage<UnityEngine.Vector3>> loggedVec3Characteristics;
-    private List<UnityEngine.XR.InputDevice> trackedDevices;
-    private List<string> dimensions = new List<string>{"x", "y", "z"};
+    OculusSensorReader sensorReader;
 
     private StreamWriter logWriter;
     private bool isLogging = false;
@@ -29,23 +26,7 @@ public class OculusSensorCapture : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        loggedVec3Characteristics = new Dictionary<String, UnityEngine.XR.InputFeatureUsage<UnityEngine.Vector3>> {
-            {"vel", UnityEngine.XR.CommonUsages.deviceVelocity },
-            {"angularVel", UnityEngine.XR.CommonUsages.deviceAngularVelocity },
-            {"pos", UnityEngine.XR.CommonUsages.devicePosition },
-        };
-
-        RefreshTrackedDevices();
-    }
-    
-    /// <summary>
-    /// Reload the list of devices that have data logged based on connected devices.
-    /// </summary>
-    void RefreshTrackedDevices()
-    {
-        trackedDevices = new List<UnityEngine.XR.InputDevice>();
-        var desiredCharacteristics = UnityEngine.XR.InputDeviceCharacteristics.TrackedDevice;
-        UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(desiredCharacteristics, trackedDevices);
+        sensorReader = new OculusSensorReader();
     }
     
     /// <summary>
@@ -61,13 +42,13 @@ public class OculusSensorCapture : MonoBehaviour
     {
         curTrial += 1;
 
-        RefreshTrackedDevices();
+        sensorReader.RefreshTrackedDevices();
 
         string filename = $"{GetDataFilePrefix()}_{curTrial:D2}.csv";
         string path = Path.Combine(Application.persistentDataPath, filename);
         
         logWriter = new StreamWriter(path);
-        logWriter.WriteLine(GetLogHeader(trackedDevices));
+        logWriter.WriteLine(GetLogHeader());
         
         logStartTime = DateTime.UtcNow;
         hudStatusText.text = baseStatusText + "STATUS: Recording";
@@ -83,23 +64,12 @@ public class OculusSensorCapture : MonoBehaviour
     /// Fetch the header of the CSV sensor log, based on the current tracked devices,
     /// available attributes, and dimensions of each attribute.
     /// </summary>
-    string GetLogHeader(List<UnityEngine.XR.InputDevice> devices) 
+    string GetLogHeader() 
     {
         string logHeader = "time,";
-        foreach (var device in devices)
-        {
-            foreach (var key in loggedVec3Characteristics.Keys)
-            {
-                foreach (var axis in dimensions)
-                {
-                    logHeader += $"{MapDeviceName(device.name)}_{key}.{axis},";
-                }
-            }
-            foreach (var axis in dimensions)
-            {
-                logHeader += $"{MapDeviceName(device.name)}_rot.{axis},";
-            }
-        }
+
+        var attributes = sensorReader.GetAvailableAttributes();
+        logHeader += String.Join(",", attributes);
 
         return logHeader;
     }
@@ -113,20 +83,11 @@ public class OculusSensorCapture : MonoBehaviour
         timerText.text = $"{timeDifference.TotalSeconds:F2} s";
 
         string logValue = $"{timeDifference.TotalMilliseconds},";
-        foreach (var device in trackedDevices)
+        
+        var attributes = sensorReader.GetSensorReadings();
+        foreach (var attribute in attributes)
         {
-            Vector3 recordedValue;
-            foreach (var characteristic in loggedVec3Characteristics) 
-            {
-                device.TryGetFeatureValue(characteristic.Value, out recordedValue);
-                logValue += $"{recordedValue.x},{recordedValue.y},{recordedValue.z},";
-            }
-
-            // Rotation data is recorded as a quaternion, then converted into XYZ angles
-            Quaternion rotationQuaternion;
-            device.TryGetFeatureValue(UnityEngine.XR.CommonUsages.deviceRotation, out rotationQuaternion);
-            recordedValue = rotationQuaternion.eulerAngles;
-            logValue += $"{recordedValue.x},{recordedValue.y},{recordedValue.z},";
+            logValue += $"{attribute.Value.x},{attribute.Value.y},{attribute.Value.z},";
         }
 
         logWriter.WriteLine(logValue);
@@ -139,33 +100,12 @@ public class OculusSensorCapture : MonoBehaviour
         return matchingFiles.Length;
     }
 
-    /// <returns>The CSV header string corresponding to a given Unity device name.</returns>
-    string MapDeviceName(string deviceName)
-    {
-        if (deviceName.Contains("Left"))
-        {
-            return "controller_left";
-        }
-
-        if (deviceName.Contains("Right"))
-        {
-            return "controller_right";
-        }
-
-        if (deviceName.Contains("Quest"))
-        {
-            return "headset";
-        }
-
-        return "unknown";
-    }
-
     /// <summary>
     /// Send a haptic vibration of the given amplitude and duration to all connected controllers.
     /// </summary>
     void SendImpulse(float amplitude, float duration)
     {
-        foreach (var device in trackedDevices)
+        foreach (var device in sensorReader.GetTrackedDevices())
         {
             if (device.TryGetHapticCapabilities(out var capabilities) &&
                 capabilities.supportsImpulse)
