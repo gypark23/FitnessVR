@@ -4,6 +4,7 @@ import glob
 import matplotlib.pyplot as plt
 import numpy as np
 from feature_list import features
+from scipy.signal import find_peaks
 
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
@@ -21,6 +22,27 @@ def summarize_sensor_trace(csv_file: str):
     
     ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
     print(ret)
+    # returns a dataframe of means and variances of each attribute
+    return ret
+    
+    pass
+
+# with peaks
+def summarize_sensor_trace2(csv_file: str):
+    df = pd.read_csv(csv_file)
+    # list of lists of means and variances
+    vals = []
+    # list of column (attribute) names
+    names = []
+    for (columnName, columnData) in df.iteritems():
+        # exclude average of time or unnamed column
+        if columnName in ('time', 'Unnamed: 37', 'accel'):
+            continue
+        
+        names.append(columnName)
+        vals.append([columnData.mean(), columnData.var(), len(find_peaks(columnData)[0])])
+    
+    ret = pd.DataFrame(vals, columns = ['Mean', 'Variance', 'Number of Peaks'], index = names)
     # returns a dataframe of means and variances of each attribute
     return ret
     
@@ -61,8 +83,8 @@ def visualize_sensor_trace(csv_file: str = "", attribute: str = "", single_attri
         
 #demonstration of summarize_sensor_trace and visualize_sensor_trace
 
-summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
-visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x', True)
+# summarize_sensor_trace("../Data/Lab1/JOG_P1_01.csv")
+# visualize_sensor_trace("../Data/Lab1/JOG_P1_01.csv", 'controller_left_vel.x', True)
 
 
 # Define additional functions as needed here!
@@ -131,7 +153,7 @@ def compare_attributes(dataframes, start, end, stat):
     plt.show()
 
 # use visualize_sensor_trace again, but this time print a summary of comparison of multiple attributes and activities
-visualize_sensor_trace(single_attribute_mode = False)
+# visualize_sensor_trace(single_attribute_mode = False)
 
 
 # given a rowNum (sensor attribute, i.e row 1 = headset_vel.y)
@@ -164,5 +186,9 @@ def coefficient_of_variation(rowNum: int):
 
 # demonstrate how CV could be used to determine an activity
 # row 1 = heaset_vel.y
-coefficient_of_variation(1)
+# coefficient_of_variation(1)
 
+
+
+
+# print(summarize_sensor_trace2("../Data/Lab1/JOG_P1_01.csv"))
