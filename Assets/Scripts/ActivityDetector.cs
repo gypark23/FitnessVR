@@ -5,11 +5,12 @@ public class ActivityDetector : MonoBehaviour
 {
     // Feel free to add additional class variables here
     OculusSensorReader sensorReader;
-
+    public TextMesh text;
     // Start is called before the first frame update
     void Start()
     {
         sensorReader = new OculusSensorReader();
+        text = GetComponent<TextMesh>();
     }
 
     /// <summary>
@@ -20,6 +21,8 @@ public class ActivityDetector : MonoBehaviour
     {
         // Here's an example of fetching an attribute from the dictionary
         var headsetVelX = attributes["headset_vel"].x;
+
+        //  Make sure you include past 3 seconds data - Kyu 
 
         // TODO: Implement your algorithm here to determine the current activity based
         // on recent sensor traces.
@@ -37,7 +40,7 @@ public class ActivityDetector : MonoBehaviour
         var attributes = sensorReader.GetSensorReadings();
 
         var currentActivity = GetCurrentActivity(attributes);
-
         // TODO: Update the Activity Sign text based on the detected activity
+        text.text = "asd";  // Change this to whatever activity you determined -Kyu
     }
 }

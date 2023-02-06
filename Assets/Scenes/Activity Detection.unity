@@ -2034,6 +2034,7 @@ GameObject:
   - component: {fileID: 1283136668}
   - component: {fileID: 1283136670}
   - component: {fileID: 1283136669}
+  - component: {fileID: 1283136671}
   m_Layer: 0
   m_Name: Activity Sign
   m_TagString: Untagged
@@ -2120,6 +2121,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1283136671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283136667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c77c9e900ff52d419d907d8bd1ccfaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 1283136669}
 --- !u!4 &1430582761 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4471613377008970, guid: ce816f2e6abb0504092c23ed9b970dfd, type: 3}
