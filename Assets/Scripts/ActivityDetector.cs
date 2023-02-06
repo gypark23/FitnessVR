@@ -47,6 +47,8 @@ public class ActivityDetector : MonoBehaviour
 
         // Change this text to Activity Type you determine (i.e "JOG")
         // Currently set to frames to show you it updates every frame - Kyu
+        
+        // text.text = GetCurrentActivity();
         text.text = frame.ToString()++;
     }
 }
