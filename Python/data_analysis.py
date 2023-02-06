@@ -6,6 +6,8 @@ import numpy as np
 from feature_list import features
 from scipy.signal import find_peaks
 
+path = "Data/Lab2/Train/"
+
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
     # list of lists of means and variances
@@ -16,16 +18,13 @@ def summarize_sensor_trace(csv_file: str):
         # exclude average of time or unnamed column
         if columnName in ('time', 'Unnamed: 37'):
             continue
-        
-        names.append(columnName)
-        vals.append([columnData.mean(), columnData.var()])
+        else:
+            names.append(columnName)
+            vals.append([columnData.mean(), columnData.var()])
     
     ret = pd.DataFrame(vals, columns = ['Mean', 'Variance'], index = names)
-    print(ret)
-    # returns a dataframe of means and variances of each attribute
     return ret
     
-    pass
 
 # with peaks
 def summarize_sensor_trace2(csv_file: str):
@@ -38,15 +37,14 @@ def summarize_sensor_trace2(csv_file: str):
         # exclude average of time or unnamed column
         if columnName in ('time', 'Unnamed: 37', 'accel'):
             continue
-        
-        names.append(columnName)
-        vals.append([columnData.mean(), columnData.var(), len(find_peaks(columnData)[0])])
+        else:
+            names.append(columnName)
+            vals.append([columnData.mean(), columnData.var(), len(find_peaks(columnData)[0])])
     
     ret = pd.DataFrame(vals, columns = ['Mean', 'Variance', 'Number of Peaks'], index = names)
     # returns a dataframe of means and variances of each attribute
     return ret
     
-    pass
 
 # prints a plot of time vs any given attribute if single_attribute_mode
 # compares multiple attributes and activities if single_attribute_mode is False
@@ -93,7 +91,6 @@ def visualize_sensor_trace(csv_file: str = "", attribute: str = "", single_attri
 # returns a dataframe given the activity that has average mean and average variance for each attribute
 def combine_samples(activity: str):
     # get all csv files
-    path = "../Data/Lab1/"
     csv_files = glob.glob(os.path.join(path, "*.csv"))
     df_list = []
 
@@ -109,8 +106,8 @@ def combine_samples(activity: str):
     # combine samples and calculate mean of means and mean of variances
     activity_df = pd.concat(df_list).groupby(level=0, sort = False).mean()
     
-    print("------ Summary of " + activity + "-------")
-    print(activity_df)
+    # print("------ Summary of " + activity + "-------")
+    # print(activity_df)
 
     return activity_df
 
@@ -181,7 +178,7 @@ def coefficient_of_variation(rowNum: int):
     plt.xticks(rotation=-5)
     plt.ylabel('Coefficient of Variation of ' + str(features[rowNum]))
     plt.show()
-    print(df)
+    # print(df)
 
 
 # demonstrate how CV could be used to determine an activity

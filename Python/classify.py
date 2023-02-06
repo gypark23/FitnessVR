@@ -19,8 +19,8 @@ class Activity:
 		self.feature_df = DA.combine_samples(activity_name)
 
 		# average of mean and variance of an activity from the training set
-		self.mean_array = self.feature_df['Mean'].to_numpy()
-		self.var_array = self.feature_df['Variance'].to_numpy()
+		self.mean_array = self.feature_df['Mean'].to_numpy()[0:36]
+		self.var_array = self.feature_df['Variance'].to_numpy()[0:36]
 
 		# initial overall weights for the 2 categories of data: mean and var
 		self.mean_superweight = 1
@@ -44,8 +44,8 @@ class Activity:
 		print("Var weights:  ", self.var_superweight*self.var_weights)
 
 	def compare(self, activity_df):
-		mean_array = activity_df['Mean'].to_numpy()
-		var_array = activity_df['Variance'].to_numpy()
+		mean_array = activity_df['Mean'].to_numpy()[0:36]
+		var_array = activity_df['Variance'].to_numpy()[0:36]
 		
 		mean_dist = ((mean_array - self.mean_array)/self.mean_array)**2
 		var_dist = ((var_array - self.var_array)/self.var_array)**2
@@ -90,6 +90,51 @@ class Classifier:
 		return category, dists
 
 
+def build_classifier():
+    # building a list of activities
+    Standing = Activity("STD")
+    Sitting = Activity("SIT")
+    Jogging = Activity("JOG")
+    Stretching = Activity("STR")
+    Overhead = Activity("OHD")
+    Twisting = Activity("TWS")
+    activities = [Standing, Sitting, Jogging, Stretching, Overhead, Twisting]
+
+    # build a classifier with given activities and weights
+    mean_superweight =  1
+    mean_weights = 36*[0]
+    var_superweight = 3
+    var_weights = 36*[0]
+
+    # raise the importance of head pos mean
+    mean_weights[6] = 3
+    mean_weights[7] = 8
+    mean_weights[8] = 3
+
+    # raise the importance of col pos y mean
+    mean_weights[20] = 7
+    mean_weights[32] = 7
+
+    # raise the importance of head pos var
+    var_weights[6] = 3
+    var_weights[7] = 3
+
+    # raise the importance of controller rot, pos, angvel var
+    var_weights[15] = 3
+    var_weights[21] = 3
+    var_weights[33] = 3
+
+    var_weights[27] = 3
+    var_weights[19] = 3
+    var_weights[30] = 3
+
+    # build list of weights
+    new_weights = [mean_superweight, mean_weights, var_superweight, var_weights]
+    C = Classifier(activities)
+    C.update_weights(new_weights)
+    return C
+
+
 def test(classifier, tasks, test_name, show_accuracy = True):
 	print("")
 	print(test_name)
@@ -111,55 +156,17 @@ def test(classifier, tasks, test_name, show_accuracy = True):
 
 
 
+def check_accuracy(file1, file2):
+	same_lines = 0
+	
+	with open(file1, 'r') as f1, open(file2, 'r') as f2:
+		lines1 = f1.readlines()
+		lines2 = f2.readlines()
 
-# =================================================== testing ==================================================
+		for i in range(0,min(len(lines1), len(lines2))):
+			if lines1[i] == lines2[i]:
+				same_lines += 1
 
-
-# building a list of activities
-Standing = Activity("STD")
-Sitting = Activity("SIT")
-Jogging = Activity("JOG")
-Stretching = Activity("STR")
-Overhead = Activity("OHD")
-Twisting = Activity("TWS")
-activities = [Standing, Sitting, Jogging, Stretching, Overhead, Twisting]
-
-# build a classifier with given activities and weights
-mean_superweight =  1
-mean_weights = 36*[1]
-var_superweight =  1
-var_weights = 36*[1]
-
-# raise the importance of head pos mean
-mean_weights[6] = 3
-mean_weights[7] = 8
-mean_weights[8] = 3
-
-# raise the importance of head pos var
-var_weights[6] = 3
-
-# raise the importance of controller rot, pos, angvel var
-var_weights[15] = 3
-var_weights[21] = 3
-var_weights[33] = 3
-
-var_weights[27] = 3
-var_weights[19] = 3
-var_weights[30] = 3
-
-# build list of weights
-new_weights = [mean_superweight, mean_weights, var_superweight, var_weights]
-
-C = Classifier(activities)
-C.update_weights(new_weights)
-C.print_weights()
-
-
-
-# testing 1
-tasks = ["JOG_P2_04.csv", "STD_P3_05.csv", "STR_P2_05.csv", "OHD_P1_04.csv", "TWS_P3_04.csv", "SIT_P1_04.csv"]
-test(C, tasks, "Test 1")
-
-# testing 2
-tasks = ["JOG_P1_04.csv", "STD_P1_01.csv", "STR_P3_05.csv", "OHD_P3_04.csv", "TWS_P2_04.csv", "SIT_P1_02.csv"]
-test(C, tasks, "Test 2")
+	acc = 100 * same_lines / max(len(lines1), len(lines2))
+	print("Accuracy: ", acc)
+	return same_lines
