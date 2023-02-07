@@ -18,13 +18,8 @@ public class ActivityDetector : MonoBehaviour
     /// </summary>
     string GetCurrentActivity(Dictionary<string, Vector3> attributes)
     {
-        // Here's an example of fetching an attribute from the dictionary
-        var headsetVelX = attributes["headset_vel"].x;
+        
 
-        // TODO: Implement your algorithm here to determine the current activity based
-        // on recent sensor traces.
-
-        return "Unknown";
     }
 
     // Update is called once per frame
