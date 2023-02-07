@@ -46,6 +46,7 @@ if __name__ == "__main__":
     # You should not need to modify the below starter code, but feel free to
     # add more arguments for debug functions as needed.
     classifier = build_classifier()
+    classifier.save("Data/Lab2/Labels/standard.txt")
     parser = argparse.ArgumentParser()
 
     sample_input = parser.add_mutually_exclusive_group(required=True)
@@ -76,3 +77,4 @@ if __name__ == "__main__":
 
         dir = "Data/Lab2/Labels/"
         check_accuracy(dir+"shallow.txt", dir+"stat.txt")
+

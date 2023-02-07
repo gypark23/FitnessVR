@@ -68,6 +68,19 @@ class Classifier:
 	def summarize(self):
 		print("Activities: ", self.names)
 
+	def save(self,file):
+		ret = []
+		for activitiy in self.activities:
+			vec = list(activitiy.mean_array + activitiy.var_array)
+			print(len(vec))
+			ret.append((activitiy.name, vec))
+
+		with open(file, "w+") as output_file:
+			for act in ret:
+				output_file.write(str(act)+"\n")
+
+
+
 	def update_weights(self, new_weights):
 		for activity in self.activities:
 			activity.update_weights(new_weights)
