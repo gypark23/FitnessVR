@@ -90,15 +90,12 @@ public class ActivityDetector : MonoBehaviour
     {
         
 
-<<<<<<< HEAD
-=======
         //  Make sure you include past 3 seconds data - Kyu 
 
         // TODO: Implement your algorithm here to determine the current activity based
         // on recent sensor traces.
 
         return "Unknown";
->>>>>>> f91ca655b8e5e03546c17baa4136fa3d8484dae3
     }
 
     // Update is called once per frame
