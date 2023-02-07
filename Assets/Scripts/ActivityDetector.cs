@@ -5,11 +5,15 @@ public class ActivityDetector : MonoBehaviour
 {
     // Feel free to add additional class variables here
     OculusSensorReader sensorReader;
-
+    public TextMesh text;
+    private int frame;
     // Start is called before the first frame update
     void Start()
     {
         sensorReader = new OculusSensorReader();
+        text = GetComponent<TextMesh>();
+
+        frame = 0;
     }
 
     /// <summary>
@@ -20,6 +24,15 @@ public class ActivityDetector : MonoBehaviour
     {
         
 
+<<<<<<< HEAD
+=======
+        //  Make sure you include past 3 seconds data - Kyu 
+
+        // TODO: Implement your algorithm here to determine the current activity based
+        // on recent sensor traces.
+
+        return "Unknown";
+>>>>>>> f91ca655b8e5e03546c17baa4136fa3d8484dae3
     }
 
     // Update is called once per frame
@@ -32,7 +45,12 @@ public class ActivityDetector : MonoBehaviour
         var attributes = sensorReader.GetSensorReadings();
 
         var currentActivity = GetCurrentActivity(attributes);
-
         // TODO: Update the Activity Sign text based on the detected activity
+
+        // Change this text to Activity Type you determine (i.e "JOG")
+        // Currently set to frames to show you it updates every frame - Kyu
+        
+        // text.text = GetCurrentActivity();
+        text.text = frame.ToString()++;
     }
 }
