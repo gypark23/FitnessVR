@@ -97,7 +97,7 @@ def predict_shallow(sensor_data: str) -> str:
     features_cols = [columns[num * 3 + alpha] for alpha in (0,1,2) for num in (6,7,8,15,21,33,27,19,30)]
     
     ret = clf.predict(df[features_cols])[0]
-    print(ret)
+    #print(ret)
     return ret
 
 
