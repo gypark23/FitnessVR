@@ -1,11 +1,13 @@
 import argparse
 from glob import glob
+import time
 from scipy.signal import find_peaks
 import data_analysis as DA
 import numpy as np
 from sklearn import tree 
-from sklearn.model_selection import train_test_split # Import train_test_split function
-from sklearn import metrics #Import scikit-learn metrics module for accuracy calculation
+from sklearn.model_selection import train_test_split 
+from sklearn.metrics import confusion_matrix 
+from sklearn import metrics 
 import pandas as pd
 import os
 from collections import defaultdict
@@ -20,6 +22,7 @@ Usage:
 
     python3 Python/predict_shallow.py --label_folder <folder with sensor .csv samples>
 """
+start = time.time()
 # Creates a DF given a directory
 # Columns of means, variances, and peaks on 36 attributes
 def createDF(directory = "Data/Lab2/Train/") -> pd.DataFrame:
@@ -75,8 +78,10 @@ def learn() -> tree.DecisionTreeClassifier:
     # valid_df = createDF("Data/Lab2/Validation/")
     # x_valid, y_valid = valid_df[features_cols], valid_df.category
     # y_pred = clf.predict(x_valid)
-    # print("Accuracy:",metrics.accuracy_score(y_valid, y_pred))
-
+    # # print("Accuracy:",metrics.accuracy_score(y_valid, y_pred))
+    # cmat = confusion_matrix(y_valid, y_pred) 
+    # print(cmat.diagonal()/cmat.sum(axis=1))
+    # print(metrics.classification_report(y_valid, y_pred))
     return clf
 
 # Global variable so that you don't spend much time
@@ -104,10 +109,9 @@ def predict_shallow(sensor_data: str) -> str:
 def predict_shallow_folder(data_folder: str, output: str):
     """Run the model's prediction on all the sensor data in data_folder, writing labels
     in sequence to an output text file."""
-
     data_files = sorted(glob(f"{data_folder}/*.csv"))
     labels = map(predict_shallow, data_files)
-
+    # print(time.time() - start)
     with open(output, "w+") as output_file:
         output_file.write("\n".join(labels))
 
