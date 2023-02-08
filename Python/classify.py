@@ -71,8 +71,7 @@ class Classifier:
 	def save(self,file):
 		ret = []
 		for activitiy in self.activities:
-			vec = list(activitiy.mean_array + activitiy.var_array)
-			print(len(vec))
+			vec = list(activitiy.mean_array) + list(activitiy.var_array)
 			ret.append((activitiy.name, vec))
 
 		with open(file, "w+") as output_file:
