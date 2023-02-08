@@ -93,7 +93,7 @@ public class ActivityDetector : MonoBehaviour
         var c_r_rot = attributes["controller_right_rot"];
 
 
-        List<List<double>> data = new List<List<double>>
+        List<List<float>> data = new List<List<float>>
         {
             h_vel.x, h_vel.y, h_vel.z,
             h_ang.x, h_ang.y, h_ang.z,
@@ -163,10 +163,8 @@ public class ActivityDetector : MonoBehaviour
         return Acts[MinIndex];
     }
 
-
     string GetCurrentActivity(Dictionary<string, Vector3> attributes)
     {
-        
         List<List<float>> RawData = GetData(attributes);
         List<float> vector = ProcessData(RawData);
         string output = Classify(vector);
