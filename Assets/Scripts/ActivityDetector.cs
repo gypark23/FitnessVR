@@ -11,7 +11,10 @@ public class ActivityDetector : MonoBehaviour
     OculusSensorReader sensorReader;
     public TextMesh text;
     private int frame;
-    string filePath = "Data/Lab2/Labels/stat.txt";
+    private string test;
+
+    TextAsset standardData;  //standardData.text to access string data
+
     List<double> STD = new List<double>();
     List<double> SIT = new List<double>();
     List<double> JOG = new List<double>();
@@ -24,60 +27,49 @@ public class ActivityDetector : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        standardData = (TextAsset)Resources.Load("standard");
+        string[] lines = standardData.text.Split('\n');
+
         sensorReader = new OculusSensorReader();
         text = GetComponent<TextMesh>();
-        using (StreamReader sr = new StreamReader(filePath))
+        for (int i = 0; i < 6; i++)
         {
-            string line;
-            int i = 0;
-            while ((line = sr.ReadLine()) != null)
-            {
-                Console.WriteLine(line);
-                int startIndex = line.IndexOf('[') + 1;
-                int endIndex = line.IndexOf(']');
-                string numbersString = line.Substring(startIndex, endIndex - startIndex);
-                string[] numberStrings = numbersString.Split(',');
+            string line = lines[i];
+            int startIndex = line.IndexOf('[') + 1;
+            int endIndex = line.IndexOf(']');
+            string numbersString = line.Substring(startIndex, endIndex - startIndex);
+            string[] numberStrings = numbersString.Split(", ");
 
-                List<double> numbers = new List<double>();
-                foreach (string numberString in numberStrings)
+            List<double> numbers = new List<double>();
+            foreach (string numberString in numberStrings)
+            {
+                double number = double.Parse(numberString);
+                if (i == 0)
                 {
-                    double number = double.Parse(numberString);
-                    if (i == 0)
-                    {
-                        STD.Add(number);
-                    }
-                    else if (i == 1)
-                    {
-                        SIT.Add(number);
-                    }
-                    else if (i == 2)
-                    {
-                        JOG.Add(number);
-                    }
-                    else if (i == 3)
-                    {
-                        STR.Add(number);
-                    }
-                    else if (i == 4)
-                    {
-                        OHD.Add(number);
-                    }
-                    else if (i == 5)
-                    {
-                        TWS.Add(number);
-                    }
+                    STD.Add(number);
                 }
-                i++;
+                else if (i == 1)
+                {
+                    SIT.Add(number);
+                }
+                else if (i == 2)
+                {
+                    JOG.Add(number);
+                }
+                else if (i == 3)
+                {
+                    STR.Add(number);
+                }
+                else if (i == 4)
+                {
+                    OHD.Add(number);
+                }
+                else if (i == 5)
+                {
+                    TWS.Add(number);
+                }
             }
         }
-
-        Console.WriteLine(string.Join(",", STD));
-        Console.WriteLine(string.Join(",", SIT));
-        Console.WriteLine(string.Join(",", JOG));
-        Console.WriteLine(string.Join(",", STR));
-        Console.WriteLine(string.Join(",", OHD));
-        Console.WriteLine(string.Join(",", TWS));
-
 
         frame = 0;
     }
@@ -114,6 +106,6 @@ public class ActivityDetector : MonoBehaviour
         // Currently set to frames to show you it updates every frame - Kyu
         
         // text.text = GetCurrentActivity();
-        text.text = frame.ToString()++;
+        text.text = "INSERT ACTIVITY HERE" + frame++.ToString();
     }
 }
