@@ -85,17 +85,17 @@ public class ActivityDetector : MonoBehaviour
     {
         // get the 36 attributes
         var h_vel = attributes["headset_vel"];
-        var h_ang = attributes["headset_ang"];
+        var h_ang = attributes["headset_angularVel"];
         var h_pos = attributes["headset_pos"];
         var h_rot = attributes["headset_rot"];
 
         var c_l_vel = attributes["controller_left_vel"];
-        var c_l_ang = attributes["controller_left_ang"];
+        var c_l_ang = attributes["controller_left_angularVel"];
         var c_l_pos = attributes["controller_left_pos"];
         var c_l_rot = attributes["controller_left_rot"];
 
         var c_r_vel = attributes["controller_right_vel"];
-        var c_r_ang = attributes["controller_right_ang"];
+        var c_r_ang = attributes["controller_right_angularVel"];
         var c_r_pos = attributes["controller_right_pos"];
         var c_r_rot = attributes["controller_right_rot"];
 
@@ -194,7 +194,7 @@ public class ActivityDetector : MonoBehaviour
 
         // add data from current frame into our data from current session
         GetData(attributes);
-        
+        //text.text = attributes["controller_left_angularVel"].x.ToString();
         if (frame % 120 == 0)
         {
             var currentActivity = GetCurrentActivity(attributes);
