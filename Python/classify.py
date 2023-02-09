@@ -73,11 +73,12 @@ class Classifier:
 		for activitiy in self.activities:
 			vec = list(activitiy.mean_array) + list(activitiy.var_array)
 			ret.append((activitiy.name, vec))
-
-		with open(file, "w+") as output_file:
-			for act in ret:
-				output_file.write(str(act)+"\n")
-
+		try:
+			with open(file, "w+") as output_file:
+				for act in ret:
+					output_file.write(str(act)+"\n")
+		except:
+			pass
 
 
 	def update_weights(self, new_weights):
