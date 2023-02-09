@@ -76,5 +76,5 @@ if __name__ == "__main__":
         predict_stat_thresh_folder(args.label_folder, args.output)
 
         dir = "Data/Lab2/Labels/"
-        check_accuracy(dir+"shallow.txt", dir+"stat.txt")
+        #check_accuracy(dir+"shallow.txt", dir+"stat.txt")
 
