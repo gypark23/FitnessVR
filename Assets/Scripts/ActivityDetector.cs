@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
 
 public class ActivityDetector : MonoBehaviour
@@ -19,6 +18,7 @@ public class ActivityDetector : MonoBehaviour
     List<float> STR = new List<float>();
     List<float> OHD = new List<float>();
     List<float> TWS = new List<float>();
+    List<List<float>> updatedData = new List<List<float>>();
 
     List<string> Acts = new List<string> {"STD", "SIT", "JOG", "STR", "OHD", "TWS"};
 
@@ -28,6 +28,13 @@ public class ActivityDetector : MonoBehaviour
         // Loading the lib for the standard vector of each activity
         standardData = (TextAsset)Resources.Load("standard");
         string[] lines = standardData.text.Split('\n');
+
+        // Add 36 empty lists to updatedData where we will
+        // store a history of real time data
+        for (int i = 0; i < 36; i++)
+        {
+            updatedData.Add(new List<float>());
+        }
 
         sensorReader = new OculusSensorReader();
         text = GetComponent<TextMesh>();
@@ -74,7 +81,7 @@ public class ActivityDetector : MonoBehaviour
     }
 
     // convert Vec3 into an array of all its components
-    List<List<float>> GetData(Dictionary<string, Vector3> attributes)
+    void GetData(Dictionary<string, Vector3> attributes)
     {
         // get the 36 attributes
         var h_vel = attributes["headset_vel"];
@@ -93,7 +100,7 @@ public class ActivityDetector : MonoBehaviour
         var c_r_rot = attributes["controller_right_rot"];
 
 
-        List<List<float>> data = new List<List<float>>
+        List<float> data = new List<float>
         {
             h_vel.x, h_vel.y, h_vel.z,
             h_ang.x, h_ang.y, h_ang.z,
@@ -110,26 +117,30 @@ public class ActivityDetector : MonoBehaviour
         };
 
 
-        return data;
+        for (int i = 0; i < 36; i++)
+        {
+            updatedData[i].Add(data[i]);
+        }
     }
 
     // calculate the mean and var of the raw data
-    List<float> ProcessData(List<List<float>> data)
+    List<float> ProcessData()
     {
-        List<float> mean = new List<float>();
-        List<float> var = new List<float>();
+        List<float> means = new List<float>();
+        List<float> vars = new List<float>();
         List<float> vector = new List<float>();
 
-        foreach (List<float> list in data)
+        foreach (List<float> list in updatedData)
         {
             float mean = list.Average();
             float variance = list.Sum(x => (x - mean) * (x - mean)) / list.Count;
-            mean.Add(mean);
-            var.Add(variance);
+            means.Add(mean);
+            vars.Add(variance);
         }
 
-        vector.AddRange(mean);
-        vector.AddRange(var);
+        // does vector need to be a list of lists?
+        vector.AddRange(means);
+        vector.AddRange(vars);
 
         return vector;
     }
@@ -139,7 +150,7 @@ public class ActivityDetector : MonoBehaviour
     {
         float dist = 0.0f;
 
-        for (int i = 0; i < list1.Count; i++)
+        for (int i = 0; i < vector.Count; i++)
         {
             float diff = (StandardVector[i] - vector[i])/StandardVector[i];
             dist = dist + diff*diff;
@@ -159,14 +170,14 @@ public class ActivityDetector : MonoBehaviour
         float dist_TWS = CalcDist(TWS, vector);
 
         List<float> dists = new List<float> {dist_STD, dist_SIT, dist_JOG, dist_STR, dist_OHD, dist_TWS};
-        int MinIndex = dists.IndexOf(dists, dists.Min());
+        // int MinIndex = dists.IndexOf(dists, dists.Min());
+        int MinIndex = dists.IndexOf(dists.Min());
         return Acts[MinIndex];
     }
 
     string GetCurrentActivity(Dictionary<string, Vector3> attributes)
     {
-        List<List<float>> RawData = GetData(attributes);
-        List<float> vector = ProcessData(RawData);
+        List<float> vector = ProcessData();
         string output = Classify(vector);
         return output;
     }
@@ -174,19 +185,28 @@ public class ActivityDetector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        frame++;
         sensorReader.RefreshTrackedDevices();
 
         // Fetch attributes as a dictionary, with <device>_<measure> as a key
         // and Vector3 objects as values
         var attributes = sensorReader.GetSensorReadings();
 
-        var currentActivity = GetCurrentActivity(attributes);
+        // add data from current frame into our data from current session
+        GetData(attributes);
+        
+        if (frame % 120 == 0)
+        {
+            var currentActivity = GetCurrentActivity(attributes);
+            text.text = currentActivity + " Updated on Frame: " + frame.ToString();
+        }
+        
         // TODO: Update the Activity Sign text based on the detected activity
 
         // Change this text to Activity Type you determine (i.e "JOG")
         // Currently set to frames to show you it updates every frame - Kyu
         
         // text.text = GetCurrentActivity();
-        text.text = "INSERT ACTIVITY HERE" + frame++.ToString();
+        
     }
 }
