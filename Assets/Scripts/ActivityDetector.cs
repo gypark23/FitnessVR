@@ -194,11 +194,17 @@ public class ActivityDetector : MonoBehaviour
 
         // add data from current frame into our data from current session
         GetData(attributes);
-        //text.text = attributes["controller_left_angularVel"].x.ToString();
+
+        //get current activity every 120 frames
         if (frame % 120 == 0)
         {
             var currentActivity = GetCurrentActivity(attributes);
             text.text = currentActivity + " Updated on Frame: " + frame.ToString();
+            // clear updatedData so each update is based on most recent 120 frames
+            for (int i = 0; i < 36; i++)
+            {
+                updatedData[i].Clear();
+            }
         }
         
         // TODO: Update the Activity Sign text based on the detected activity
