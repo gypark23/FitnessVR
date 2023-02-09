@@ -9,7 +9,9 @@ public class ActivityDetector : MonoBehaviour
     OculusSensorReader sensorReader;
     public TextMesh text;
     private int frame;
+    private float secondsCount;
     private string test;
+    private string currentActivity;
 
     TextAsset standardData;  //standardData.text to access string data
     List<float> STD = new List<float>();
@@ -35,7 +37,7 @@ public class ActivityDetector : MonoBehaviour
         {
             updatedData.Add(new List<float>());
         }
-
+        secondsCount = 3.1f;
         sensorReader = new OculusSensorReader();
         text = GetComponent<TextMesh>();
         for (int i = 0; i < 6; i++)
@@ -185,7 +187,7 @@ public class ActivityDetector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        frame++;
+        secondsCount -= Time.deltaTime;
         sensorReader.RefreshTrackedDevices();
 
         // Fetch attributes as a dictionary, with <device>_<measure> as a key
@@ -194,17 +196,18 @@ public class ActivityDetector : MonoBehaviour
 
         // add data from current frame into our data from current session
         GetData(attributes);
-
-        //get current activity every 120 frames
-        if (frame % 120 == 0)
+        text.text = currentActivity + " Next Update In: " + secondsCount.ToString("0.00") + " secs";
+        //get current activity every 3.1 seconds
+        if (secondsCount <= 0)
         {
-            var currentActivity = GetCurrentActivity(attributes);
-            text.text = currentActivity + " Updated on Frame: " + frame.ToString();
+            currentActivity = GetCurrentActivity(attributes);
+
             // clear updatedData so each update is based on most recent 120 frames
             for (int i = 0; i < 36; i++)
             {
                 updatedData[i].Clear();
             }
+            secondsCount = 3.1f;
         }
         
         // TODO: Update the Activity Sign text based on the detected activity
