@@ -46,7 +46,7 @@ if __name__ == "__main__":
     # You should not need to modify the below starter code, but feel free to
     # add more arguments for debug functions as needed.
     classifier = build_classifier()
-    classifier.save("Data/Lab2/Assets/Resources/standard.txt")
+    classifier.save("Assets/Resources/standard.txt")
     parser = argparse.ArgumentParser()
 
     sample_input = parser.add_mutually_exclusive_group(required=True)
