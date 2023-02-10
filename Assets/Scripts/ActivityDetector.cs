@@ -8,7 +8,6 @@ public class ActivityDetector : MonoBehaviour
 {
     OculusSensorReader sensorReader;
     public TextMesh text;
-    private int frame;
     private float secondsCount;
     private string test;
     private string currentActivity;
@@ -78,8 +77,6 @@ public class ActivityDetector : MonoBehaviour
                 }
             }
         }
-
-        frame = 0;
     }
 
     // convert Vec3 into an array of all its components
@@ -199,7 +196,7 @@ public class ActivityDetector : MonoBehaviour
         // add data from current frame into our data from current session
         GetData(attributes);
         text.text = currentActivity + " Next Update In: " + secondsCount.ToString("0.00") + " secs";
-        //get current activity every 3.1 seconds
+        //get current activity every 2.9 seconds
         if (secondsCount <= 0)
         {
             currentActivity = GetCurrentActivity(attributes);
@@ -209,7 +206,7 @@ public class ActivityDetector : MonoBehaviour
             {
                 updatedData[i].Clear();
             }
-            secondsCount = 3.1f;
+            secondsCount = 2.9f;
         }
         
         // TODO: Update the Activity Sign text based on the detected activity
