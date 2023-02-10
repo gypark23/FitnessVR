@@ -7,11 +7,14 @@ using System.Linq;
 public class ActivityDetector : MonoBehaviour
 {
     OculusSensorReader sensorReader;
+    // text to display the detected activity
     public TextMesh text;
+    // float to detect activity every 2.9 seconds
     private float secondsCount;
-    private string test;
+    // string to store current activity
     private string currentActivity;
 
+    // variables to store standard data to compare to real time data
     TextAsset standardData;  //standardData.text to access string data
     List<float> STD = new List<float>();
     List<float> SIT = new List<float>();
@@ -19,8 +22,11 @@ public class ActivityDetector : MonoBehaviour
     List<float> STR = new List<float>();
     List<float> OHD = new List<float>();
     List<float> TWS = new List<float>();
+
+    // collects real time VR data for the most recent 2.9 seconds
     List<List<float>> updatedData = new List<List<float>>();
 
+    // list of activities we want to identify
     List<string> Acts = new List<string> {"STD", "SIT", "JOG", "STR", "OHD", "TWS"};
 
     // Start is called before the first frame update
@@ -36,9 +42,11 @@ public class ActivityDetector : MonoBehaviour
         {
             updatedData.Add(new List<float>());
         }
-        secondsCount = 3.1f;
+        secondsCount = 2.9f;
         sensorReader = new OculusSensorReader();
         text = GetComponent<TextMesh>();
+        
+        // parse standard activity data into a list for each activity
         for (int i = 0; i < 6; i++)
         {
             string line = lines[i];
@@ -79,7 +87,7 @@ public class ActivityDetector : MonoBehaviour
         }
     }
 
-    // convert Vec3 into an array of all its components
+    // convert Vec3 into a 2-D array of all its components
     void GetData(Dictionary<string, Vector3> attributes)
     {
         // get the 36 attributes
@@ -201,20 +209,12 @@ public class ActivityDetector : MonoBehaviour
         {
             currentActivity = GetCurrentActivity(attributes);
 
-            // clear updatedData so each update is based on most recent 120 frames
+            // clear updatedData so each update is based on most recent 2.9 seconds
             for (int i = 0; i < 36; i++)
             {
                 updatedData[i].Clear();
             }
             secondsCount = 2.9f;
         }
-        
-        // TODO: Update the Activity Sign text based on the detected activity
-
-        // Change this text to Activity Type you determine (i.e "JOG")
-        // Currently set to frames to show you it updates every frame - Kyu
-        
-        // text.text = GetCurrentActivity();
-        
     }
 }
