@@ -154,10 +154,12 @@ public class ActivityDetector : MonoBehaviour
 
         for (int i = 0; i < vector.Count; i++)
         {
-            float diff = (StandardVector[i] - vector[i])/StandardVector[i];
-            dist = dist + diff*diff;
+            if (i==6||i==7||i==8||i==42||i==43||i==51||i==57||i==69||i==63||i==55||i == 66)
+            {
+                float diff = (StandardVector[i] - vector[i])/StandardVector[i];
+                dist = dist + diff*diff;
+            }
         }
-
         return dist;     
     }
 
