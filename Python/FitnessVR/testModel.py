@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
+from sklearn import svm
 import onnx
 
 #Example Decision Tree Model
@@ -16,7 +17,7 @@ df = pd.DataFrame(data)
 
 X_train, X_test, y_train, y_test = train_test_split(df[['x']], df['y'], test_size=0.2)
 
-model = DecisionTreeRegressor()
+model = svm.SVR()
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
