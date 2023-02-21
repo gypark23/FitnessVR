@@ -11,10 +11,6 @@ public class Lab3Capture : MonoBehaviour
     private bool isLogging = false;
     private float secondsCount;
 
-    private (string, string)[] activities = {("STD", "Standing"), ("SIT", "Sitting"),
-        ("JOG", "Jogging"), ("STR", "Arms stretching"), ("OHD", "Arms overhead"), 
-        ("TWS", "Twisting")};
-
     private int curActivityIdx = 0;
     private int curGroupMemberNum = 1;
     private int curTrial = 0;
@@ -132,12 +128,6 @@ public class Lab3Capture : MonoBehaviour
         bool frontTriggerPressed = OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
         bool sideTriggerPressed = OVRInput.GetDown(OVRInput.Button.PrimaryHandTrigger, OVRInput.Controller.RTouch);
 
-        // Change selected activity
-        if (frontTriggerPressed)
-        {
-            curActivityIdx = (curActivityIdx + 1) % activities.Length;
-        }
-
         // Change selected group member
         if (sideTriggerPressed)
         {
@@ -167,7 +157,8 @@ public class Lab3Capture : MonoBehaviour
 
             SendImpulse(0.2f, 0.1f);
         }
-
+        
+        // 10 seconds elapsed
         if (secondsCount <= 0)
         {
             StopLogging();
