@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from preprocess import create_dataset
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
-
+from sklearn.metrics import f1_score
 
 dir_1 = "../../Data/Lab3/Train/"
 dir_2 = "../../Data/Lab3/Test/"
@@ -43,6 +43,7 @@ print(f"Training time: {train_time - start_time} seconds")
 print(f"Testing time: {end_time - train_time} seconds","\n")
 
 print('Random Forest accuracy:', accuracy)
+print("F1 Score:", f1_score(new_labels, pred_labels))
 print(conf_matrix)
 
 
