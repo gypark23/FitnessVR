@@ -49,24 +49,26 @@ def extract_features(csv_file: str, show=False):
 	head_osc =  calc_diffs(sampled_cols[2])
 
 	# store in a new dataframe
+	len_norms = len(head_norms)
 	extracted_df = pd.DataFrame()
 	extracted_df["head_norms"] = head_norms
 	extracted_df["head_osc"] = head_osc
-	extracted_df["head_angv_x"] = sampled_cols[3]
-	extracted_df["head_angv_y"] = sampled_cols[4]
-	extracted_df["head_angv_z"] = sampled_cols[5]
+	extracted_df["head_angv_x"] = sampled_cols[3].tolist()[:len_norms]
+	extracted_df["head_angv_y"] = sampled_cols[4].tolist()[:len_norms]
+	extracted_df["head_angv_z"] = sampled_cols[5].tolist()[:len_norms]
 
 	extracted_df["left_norms"] = left_norms
-	extracted_df["left_angv_x"] = sampled_cols[9]
-	extracted_df["left_angv_y"] = sampled_cols[10]
-	extracted_df["left_angv_z"] = sampled_cols[11]
+	extracted_df["left_angv_x"] = sampled_cols[9].tolist()[:len_norms]
+	extracted_df["left_angv_y"] = sampled_cols[10].tolist()[:len_norms]
+	extracted_df["left_angv_z"] = sampled_cols[11].tolist()[:len_norms]
 
 	extracted_df["right_norms"] = right_norms
-	extracted_df["right_angv_x"] = sampled_cols[15]
-	extracted_df["right_angv_y"] = sampled_cols[16]
-	extracted_df["right_angv_z"] = sampled_cols[17]
+	extracted_df["right_angv_x"] = sampled_cols[15].tolist()[:len_norms]
+	extracted_df["right_angv_y"] = sampled_cols[16].tolist()[:len_norms]
+	extracted_df["right_angv_z"] = sampled_cols[17].tolist()[:len_norms]
 
-	extracted_df = extracted_df.dropna()
+	# extracted_df = extracted_df.dropna()
+	
 	if show:
 		print(ret)
 
@@ -141,9 +143,14 @@ def create_dataset(dir):
 			df = load_sample(dir + filename)
 			if df.isna().any().any():
 				continue
-			label = filename[0]
+			
+			if filename[0] == "M":
+				label = 0
+			else:
+				label = 1
+
 			df_matrix = df.to_numpy()
-			df_flat = df_matrix.flatten()
+			df_flat = list(df_matrix.flatten())
 			dataset.append(df_flat)
 			labels.append(label)
 		except:
@@ -155,7 +162,8 @@ def create_dataset(dir):
 
 # ============================== MAIN =================================
 
-# dir = "../../Data/Lab2/Train/JOG_010.csv"
-# df = extract_features(dir)
-# calc_feature_stats(df, True)
+#dir = "../../Data/Lab3/Train/F1.csv"
+#df = load_sample(dir)
+#df = load_sample(dir)
+#print(df)
 
