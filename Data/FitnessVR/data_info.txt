@@ -1,0 +1,5 @@
+group 1 = kendrick
+STD = curls
+SIT = jumping jack
+
+group 2 = kyu
