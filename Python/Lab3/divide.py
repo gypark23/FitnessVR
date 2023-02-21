@@ -24,6 +24,6 @@ if os.path.exists(directory):
         print(file_name)
         # RNG, determine training set
         if(random.random() <= ratio):
-            shutil.copy2(file_path, train_directory + file_name)
+            shutil.copy2(file_path, train_directory + file_name + ".csv")
         else:
-            shutil.copy2(file_path, testing_directory + file_name)
+            shutil.copy2(file_path, testing_directory + file_name + ".csv")
