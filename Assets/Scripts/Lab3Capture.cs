@@ -37,7 +37,7 @@ public class Lab3Capture : MonoBehaviour
     /// </summary>
     string GetDataFilePrefix()
     {
-        return $"{activities[curActivityIdx].Item1}_P{curGroupMemberNum + 1}";
+        return $"Lab3_P{curGroupMemberNum + 1}";
     }
 
     void StartLogging()
