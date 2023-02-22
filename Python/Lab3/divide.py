@@ -9,6 +9,8 @@ male_set = (20, 21, 22, 23, 24, 26, 28, 38)
 female_set = (25, 30, 39, 40, 42, 44, 48)
 
 num = 0
+
+# Automatically distribute samples and rename them into gender + num (i.e. F10, M2, F18)
 if os.path.exists(directory):
     for filename in os.listdir(directory):
         if filename[-3:] != "csv":
