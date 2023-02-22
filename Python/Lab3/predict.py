@@ -33,16 +33,17 @@ pred_labels = rf.predict(testing_set)
 
 accuracy = accuracy_score(new_labels, pred_labels)
 conf_matrix = confusion_matrix(new_labels, pred_labels)
-
+f1 = f1_score(new_labels, pred_labels)
 
 end_time = time.time()
 
-print(f"Training time: {train_time - start_time} seconds")
+
+print(f"\nTraining time: {train_time - start_time} seconds")
 print(f"Testing time: {end_time - train_time} seconds","\n")
 
 print('Random Forest accuracy:', accuracy)
-print("F1 Score:", f1_score(new_labels, pred_labels))
-print(conf_matrix)
+print("F1 Score:", f1)
+print("Confusion Matrix:\n", conf_matrix, "\n")
 
 
 # Export
