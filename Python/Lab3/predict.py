@@ -42,7 +42,7 @@ print(f"\nTraining time: {train_time - start_time} seconds")
 print(f"Testing time: {end_time - train_time} seconds","\n")
 
 print('Random Forest accuracy:', accuracy)
-print("F1 Score:", f1)
+print("\nF1 Score:", f1)
 print("Confusion Matrix:\n", conf_matrix, "\n")
 
 
