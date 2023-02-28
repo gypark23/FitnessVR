@@ -47,7 +47,7 @@ def clearFolder():
 # both training and validation sets.   
 def create_validation_set(ratio:float = 0.8, check:bool = True):
     clearFolder()
-    directory = "../../Data/FitnessVR/Labeled/"
+    directory = "../../Data/FitnessVR/Cleaned/"
     validation_directory = "../../Data/FitnessVR/Validation/"
     train_directory = "../../Data/FitnessVR/Train/"
     validation_set = set()
@@ -69,12 +69,14 @@ def create_validation_set(ratio:float = 0.8, check:bool = True):
             # RNG, determine training set
             if(random.random() <= ratio):
                 shutil.copy2(file_path, train_directory + file_name)
+                train_set.add(filename[:3])
             else:
                 shutil.copy2(file_path, validation_directory + file_name)
+                validation_set.add(filename[:3])
 
     # check whether all activities are included in both training and validation sets.
     if check:
-        if validation_set == valid_set == train_set:
+        if validation_set == train_set:
             print("At least one CSV file exists for each activity in both the training and validation sets.")
             print("You may proceed to the next step.")
         else:
@@ -82,4 +84,4 @@ def create_validation_set(ratio:float = 0.8, check:bool = True):
             raise Exception("The given ratio failed to produce validation or train set with all six activities. Try changing the ratio or add more data sets. Files will be deleted.")
 
 #clearFolder()
-create_validation_set(check = False)
+create_validation_set()
