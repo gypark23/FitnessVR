@@ -3,12 +3,20 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Linq;
-
+using Unity.Barracuda;
 public class FitnessVR : MonoBehaviour
 {
+
+    private NNModel kerasModel;
+    private Model runtimeModel;
+    private IWorker worker;
+    private string outputLayerName;
+
     OculusSensorReader sensorReader;
     // text to display the detected activity
     public TextMesh text;
+
+    public TextMesh testText;
     // float to detect activity every 2.9 seconds
     private float secondsCount;
     // string to store current activity
@@ -35,6 +43,11 @@ public class FitnessVR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        string modelPath = Application.dataPath + "/model.onnx";
+        runtimeModel = ModelLoader.Load(modelPath);
+        worker = WorkerFactory.CreateWorker(WorkerFactory.Type.Auto, runtimeModel);
+        outputLayerName = runtimeModel.outputs[runtimeModel.outputs.Count - 1];
+
         // Loading the lib for the standard vector of each activity
         standardData = (TextAsset)Resources.Load("standard");
         string[] lines = standardData.text.Split('\n');
@@ -88,6 +101,33 @@ public class FitnessVR : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void Predict()
+    {
+        int batchSize = 1;
+        int sequenceLength = 8628;
+        int inputSize = 37;
+
+
+
+        // Create a Tensor with the flattened data and the specified shape
+        Tensor inputTensor = new Tensor(1, sequenceLength, inputSize, 1);
+        // Flatten the inputData array into a 1D array
+        for (int i = 0; i < batchSize; i++)
+        {
+            for (int j = 0; j < sequenceLength; j++)
+            {
+                for (int k = 0; k < inputSize; k++)
+                {
+                    inputTensor[i, j, k, 1] = UnityEngine.Random.Range(0f, 1f);
+                }
+            }
+        }
+        worker.Execute(inputTensor);
+        Tensor output = worker.PeekOutput();
+        float[] outputData = output.ToReadOnlyArray();
+        testText.text = "Output: " + outputData[0];
     }
 
     // convert Vec3 into a 2-D array of all its components

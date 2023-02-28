@@ -9,6 +9,7 @@ import os
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from sklearn.metrics import classification_report, confusion_matrix
+import tensorflow as tf
 # curl_df = DA.combine_samples("CUR")
 # jump_df = DA.combine_samples("JUM")
 path = "../../Data/FitnessVR/Train/"
@@ -93,3 +94,6 @@ print(confusion_matrix(y_test.ravel(), y_pred.ravel()))
 # # Note 0 = Curl, 1 = Jump
 # for i in range(len(y_pred)):
 #     print('Actual:', y_test[i], 'Predicted:', y_pred[i])
+
+# Save model
+# tf.saved_model.save(model, "saved_model")
