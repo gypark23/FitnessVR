@@ -47,23 +47,30 @@ def clearFolder():
 # both training and validation sets.   
 def create_validation_set(ratio:float = 0.8, check:bool = True):
     clearFolder()
-    directory = "../../Data/FitnessVR/Labeled"
-    validation_directory = "../../Data/FitnessVR/Validation"
-    train_directory = "../../Data/FitnessVR/Train"
+    directory = "../../Data/FitnessVR/Labeled/"
+    validation_directory = "../../Data/FitnessVR/Validation/"
+    train_directory = "../../Data/FitnessVR/Train/"
     validation_set = set()
     train_set = set()
     # set to check if all activities are included
-    valid_set = {'STD', 'SIT'}
+    valid_set = {'STD' : "CUR", 'SIT' : "JUM"}
     if os.path.exists(directory):
         for filename in os.listdir(directory):
+            if filename[-3:] != "csv":
+                continue
+            file_name = ""
+            cat = filename[0:3]
+            if cat in valid_set:
+                file_name =  valid_set[cat] + filename[3:]
+            else:
+                raise Exception("Unsupported File name, check file name")
+
             file_path = os.path.join(directory, filename)
             # RNG, determine training set
             if(random.random() <= ratio):
-                shutil.copy2(file_path, train_directory)
-                train_set.add(filename[:3])
+                shutil.copy2(file_path, train_directory + file_name)
             else:
-                shutil.copy2(file_path, validation_directory)
-                validation_set.add(filename[:3])
+                shutil.copy2(file_path, validation_directory + file_name)
 
     # check whether all activities are included in both training and validation sets.
     if check:
@@ -74,5 +81,5 @@ def create_validation_set(ratio:float = 0.8, check:bool = True):
             clearFolder()
             raise Exception("The given ratio failed to produce validation or train set with all six activities. Try changing the ratio or add more data sets. Files will be deleted.")
 
-
-create_validation_set()
+#clearFolder()
+create_validation_set(check = False)
