@@ -6,7 +6,7 @@ import numpy as np
 from feature_list import features
 from scipy.signal import find_peaks
 
-path = "Data/Lab2/Train/"
+path = "../../Data/FitnessVR/Train/"
 
 def summarize_sensor_trace(csv_file: str):
     df = pd.read_csv(csv_file)
@@ -59,14 +59,10 @@ def visualize_sensor_trace(csv_file: str = "", attribute: str = "", single_attri
         plt.show()
     else:
         # combine data samples for multiple activities 
-        Standing = combine_samples("STD")
-        Sitting = combine_samples("SIT")
-        Jogging = combine_samples("JOG")
-        Stretching = combine_samples("STR")
-        Overhead = combine_samples("OHD")
-        Twisting = combine_samples("TWS")
+        CURL = combine_samples("CUR")
+        JUMP = combine_samples("JUM")
 
-        dataframes = [Standing, Sitting, Jogging, Stretching, Overhead, Twisting]
+        dataframes = [CURL, JUMP]
 
         # Output graphs for variance of different activities
         for i in range(12):
@@ -118,7 +114,7 @@ def compare_attributes(dataframes, start, end, stat):
     # Create a list of colors for the bars
     colors = ['b', 'g', 'r', 'c', 'm', 'y']
 
-    activities = ["Standing", "Sitting", "Jogging", "Stretching", "Overhead", "Twisting"]
+    activities = ["Curl", "Jumping Jack"]
 
     # Set width of each bar
     barWidth = 0.4/num_indexes
@@ -155,21 +151,13 @@ def compare_attributes(dataframes, start, end, stat):
 
 # given a rowNum (sensor attribute, i.e row 1 = headset_vel.y)
 def coefficient_of_variation(rowNum: int):
-    Standing = combine_samples("STD").iloc[rowNum]
-    Sitting = combine_samples("SIT").iloc[rowNum]
-    Jogging = combine_samples("JOG").iloc[rowNum]
-    Stretching = combine_samples("STR").iloc[rowNum]
-    Overhead = combine_samples("OHD").iloc[rowNum]
-    Twisting = combine_samples("TWS").iloc[rowNum]
+    Curl = combine_samples("CUR").iloc[rowNum]
+    Jump = combine_samples("JUM").iloc[rowNum]
 
     # Calculate CV = sqrt(variance) / mean
-    data = {"Activities" : ["Standing", "Sitting", "Jogging", "Stretching", "Overhead", "Twisting"],
-    "Coefficient of Variation": [Standing["Variance"] ** 0.5 / Standing["Mean"], 
-    Sitting["Variance"] ** 0.5 / Sitting["Mean"],
-    Jogging["Variance"] ** 0.5 / Jogging["Mean"],
-    Stretching["Variance"] ** 0.5 / Stretching["Mean"],
-    Overhead["Variance"] ** 0.5 / Overhead["Mean"],
-    Twisting["Variance"] ** 0.5 / Twisting["Mean"]]}
+    data = {"Activities" : ["Curl", "Jumping Jack"],
+    "Coefficient of Variation": [Curl["Variance"] ** 0.5 / Curl["Mean"], 
+    Jump["Variance"] ** 0.5 / Jump["Mean"]]}
 
     # Plot
     df = pd.DataFrame(data)

@@ -20,8 +20,8 @@ def clearFolder():
 clearFolder()
 for filename in os.listdir(directory):
     if filename.endswith('.csv'):
-        df = pd.read_csv(os.path.join(directory, filename))
+        df = pd.read_csv(os.path.join(directory, filename), index_col=False)
         df = df.iloc[:719]
         # Save the cropped dataframe to a new CSV file
         output_filename = os.path.join(output_directory, filename)
-        df.to_csv(output_filename)
+        df.to_csv(output_filename, index=False)
