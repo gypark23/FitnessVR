@@ -10,6 +10,16 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from sklearn.metrics import classification_report, confusion_matrix
 import tensorflow as tf
+
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Lasso
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+
+from skforecast.ForecasterAutoreg import ForecasterAutoreg
+
 # curl_df = DA.combine_samples("CUR")
 # jump_df = DA.combine_samples("JUM")
 path = "../../Data/FitnessVR/Train/"
@@ -46,13 +56,16 @@ def concat_csv(dir):
     return pd.concat(df_list)
 
 # Assume headset_pos.y is one of the significant features
-# jum = time_series_average(activity = "JUM")
-# jum_posy = jum["headset_pos.y"]
-# jum_posy = pd.Series(list(jum_posy), index=list(jum["time"]))
-# print(jum_posy)
+jum = time_series_average(activity = "JUM")
+jum_posy = jum["headset_pos.y"]
+jum_posy = pd.Series(list(jum_posy), index=list(jum["time"]))
+print(jum_posy)
 
-# jum_posy.plot(subplots=True)
-# plt.show()
+jum_posy.plot(subplots=True)
+plt.show()
+
+
+# Prediction Model
 from sklearn.model_selection import train_test_split
 
 csvs = (concat_csv("../../Data/FitnessVR/Cleaned"))
@@ -97,3 +110,43 @@ print(confusion_matrix(y_test.ravel(), y_pred.ravel()))
 
 # Save model
 # tf.saved_model.save(model, "saved_model")
+
+
+
+
+
+# Time-Series Evaluation for Posture
+# Only use headset_pos.y
+
+# Data Cleaning 
+steps = 159
+data = pd.read_csv("../../Data/FitnessVR/Train/JUM_P1_02.csv")
+train, test = data.iloc[:560],  data.iloc[560:]
+data = data.set_index('time')
+# fig, ax=plt.subplots(figsize=(9, 4))
+# train.plot(ax = ax, y = 'headset_pos.y', label='train')
+# test.plot(ax = ax, y = 'headset_pos.y', label='test')
+
+# ax.legend()
+# plt.show()
+
+# Predict
+forecaster = ForecasterAutoreg(regressor = RandomForestRegressor(),lags= 100)
+forecaster.fit(y=train['headset_pos.y'])
+predictions = forecaster.predict(steps=steps)
+
+# Visualize Prediction
+fig, ax = plt.subplots(figsize=(9, 4))
+train.plot(ax=ax, y = "headset_pos.y", label='train')
+test.plot(ax=ax, y = "headset_pos.y", label='test')
+predictions.plot(ax=ax, x = test, label='predictions')
+ax.legend()
+plt.savefig("../../Reports/FitnessVR/time_series_forecast.png")
+plt.show()
+
+# Evaluation
+error_mse = mean_squared_error(y_true = test["headset_pos.y"],y_pred = predictions)
+print(f"Test error (mse): {error_mse}")
+
+
+

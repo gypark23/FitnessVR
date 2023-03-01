@@ -43,10 +43,10 @@ public class FitnessVR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        string modelPath = Application.dataPath + "/model.onnx";
-        runtimeModel = ModelLoader.Load(modelPath);
-        worker = WorkerFactory.CreateWorker(WorkerFactory.Type.Auto, runtimeModel);
-        outputLayerName = runtimeModel.outputs[runtimeModel.outputs.Count - 1];
+        // string modelPath = "model";
+        // runtimeModel = ModelLoader.Load(modelPath);
+        // worker = WorkerFactory.CreateWorker(WorkerFactory.Type.Auto, runtimeModel);
+        // outputLayerName = runtimeModel.outputs[runtimeModel.outputs.Count - 1];
 
         // Loading the lib for the standard vector of each activity
         standardData = (TextAsset)Resources.Load("standard");
@@ -101,34 +101,36 @@ public class FitnessVR : MonoBehaviour
                 }
             }
         }
+        //Predict();
+        testText.text = "Hello";
     }
 
-    public void Predict()
-    {
-        int batchSize = 1;
-        int sequenceLength = 8628;
-        int inputSize = 37;
+    // public void Predict()
+    // {
+    //     int batchSize = 1;
+    //     int sequenceLength = 8628;
+    //     int inputSize = 37;
 
 
 
-        // Create a Tensor with the flattened data and the specified shape
-        Tensor inputTensor = new Tensor(1, sequenceLength, inputSize, 1);
-        // Flatten the inputData array into a 1D array
-        for (int i = 0; i < batchSize; i++)
-        {
-            for (int j = 0; j < sequenceLength; j++)
-            {
-                for (int k = 0; k < inputSize; k++)
-                {
-                    inputTensor[i, j, k, 1] = UnityEngine.Random.Range(0f, 1f);
-                }
-            }
-        }
-        worker.Execute(inputTensor);
-        Tensor output = worker.PeekOutput();
-        float[] outputData = output.ToReadOnlyArray();
-        testText.text = "Output: " + outputData[0];
-    }
+    //     // Create a Tensor with the flattened data and the specified shape
+    //     Tensor inputTensor = new Tensor(1, sequenceLength, inputSize, 1);
+    //     // Flatten the inputData array into a 1D array
+    //     for (int i = 0; i < batchSize; i++)
+    //     {
+    //         for (int j = 0; j < sequenceLength; j++)
+    //         {
+    //             for (int k = 0; k < inputSize; k++)
+    //             {
+    //                 inputTensor[i, j, k, 1] = UnityEngine.Random.Range(0f, 1f);
+    //             }
+    //         }
+    //     }
+    //     worker.Execute(inputTensor);
+    //     Tensor output = worker.PeekOutput();
+    //     float[] outputData = output.ToReadOnlyArray();
+    //     testText.text = "Output: " + outputData[0];
+    // }
 
     // convert Vec3 into a 2-D array of all its components
     void GetData(Dictionary<string, Vector3> attributes)
@@ -265,7 +267,7 @@ public class FitnessVR : MonoBehaviour
                 moving = false;
             }
         }
-
+        testText.text = Time.deltaTime.ToString();
         text.text = "Reps: " + (int)Math.Floor(reps / 2);
         //get current activity every 2.9 seconds
         if (updatedData[0].Count >= 100)
