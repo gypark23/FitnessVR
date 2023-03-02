@@ -282,10 +282,10 @@ public class FitnessVR : MonoBehaviour
         // }
         testText.text = Time.deltaTime.ToString();
 
-        leftHeight.Add(cl_pos_y)
-        rightHeight.Add(cr_pos_y)
+        leftHeight.Add(cl_pos_y);
+        rightHeight.Add(cr_pos_y);
         
-        bool previousLeftUp = leftUp
+        bool previousLeftUp = leftUp;
         if (leftHeight.Count>20)
         {
             leftHeight.RemoveAt(0);
@@ -309,9 +309,9 @@ public class FitnessVR : MonoBehaviour
             }
             
         }
-        if (previousLeftUp == false and leftUp == true)
+        if (previousLeftUp == false && leftUp == true)
         {
-            rep++;
+            reps++;
         }
 
         text.text = "Reps:" + reps;
