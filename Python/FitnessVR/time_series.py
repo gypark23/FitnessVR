@@ -20,6 +20,8 @@ from sklearn.pipeline import make_pipeline
 
 from skforecast.ForecasterAutoreg import ForecasterAutoreg
 
+from scipy import stats
+
 # curl_df = DA.combine_samples("CUR")
 # jump_df = DA.combine_samples("JUM")
 path = "../../Data/FitnessVR/Train/"
@@ -68,40 +70,48 @@ plt.show()
 # Prediction Model
 from sklearn.model_selection import train_test_split
 
-csvs = (concat_csv("../../Data/FitnessVR/Cleaned"))
+def create_LSTM():
+    # Data Preparation
+    csvs = (concat_csv("../../Data/FitnessVR/Cleaned"))
 
-X = csvs.drop("cat", axis=1).values
-y = csvs["cat"].values
+    X = csvs.drop("cat", axis=1).values
+    y = csvs["cat"].values
 
-timestep = 1 #
-num_samples = X.shape[0] // timestep
-num_timesteps = timestep
-num_features = X.shape[1]
-X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
-y = y[:num_samples * timestep].reshape(num_samples, num_timesteps)
+    timestep = 1 #
+    num_samples = X.shape[0] // timestep
+    num_timesteps = timestep
+    num_features = X.shape[1]
+    X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
+    y = y[:num_samples * timestep].reshape(num_samples, num_timesteps)
+    # Use LSTM Deep Learning model for time-series
+    model = Sequential()
+    model.add(LSTM(64, input_shape=(num_timesteps, num_features)))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Use LSTM Deep Learning model for time-series
-model = Sequential()
-model.add(LSTM(64, input_shape=(num_timesteps, num_features)))
-model.add(Dense(1, activation='sigmoid'))
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # Data Training
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
-# Train the model
-model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
 
-loss, accuracy = model.evaluate(X_test, y_test)
-print('Test accuracy:', accuracy)
-print('Test loss:', loss)
+    # Model Evaluation
+    loss, accuracy = model.evaluate(X_test, y_test)
+    print('Test accuracy:', accuracy)
+    print('Test loss:', loss)
+    # Prediction
+    y_pred = model.predict(X_test)
+    y_pred = np.round(y_pred)
 
-# Prediction
-y_pred = model.predict(X_test)
-y_pred = np.round(y_pred)
+    # Evaluation
+    print(classification_report(y_test.ravel(), y_pred.ravel()))
+    print(confusion_matrix(y_test.ravel(), y_pred.ravel()))
+    return model
 
-# Evaluation
-print(classification_report(y_test.ravel(), y_pred.ravel()))
-print(confusion_matrix(y_test.ravel(), y_pred.ravel()))
+
+model = create_LSTM()
+
+
 
 # # Compare predicted class and actual class
 # # Note 0 = Curl, 1 = Jump
@@ -110,6 +120,51 @@ print(confusion_matrix(y_test.ravel(), y_pred.ravel()))
 
 # Save model
 # tf.saved_model.save(model, "saved_model")
+
+
+# If you want to predict the whole CSV rather than just 1 timestep:
+
+def predict_csv(dir, model = None):
+    csv_files = glob.glob(os.path.join(dir, "*.csv"))
+    combined_y = []
+    predicted_y = []
+    idx = 0
+
+    if not model:
+        model = create_LSTM()
+
+    for file in csv_files:
+        name = file.split("\\")[-1].split('_')[0].rsplit('/', 1)[-1]
+        # for the activity csv
+        df = pd.read_csv(file)
+        # 0 for Curl, 1 for Jump
+        df['cat'] = 0 if (name == "CUR" or valid_set.get(name,"JUM") == "CUR") else 1
+        combined_y.append(0 if (name == "CUR" or valid_set.get(name,"JUM") == "CUR") else 1)
+        X = df.drop("cat", axis=1).values
+        y = df["cat"].values
+
+        timestep = 1 #
+        num_samples = X.shape[0] // timestep
+        num_timesteps = timestep
+        num_features = X.shape[1]
+        X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
+        y = y[:num_samples * timestep].reshape(num_samples, num_timesteps)
+
+        y_pred = np.around(model.predict(X)).astype(int)
+        predicted_y.append(stats.mode(y_pred)[0][0][0])
+    
+    # Evaluation
+    print(classification_report(combined_y, predicted_y))
+    print(confusion_matrix(combined_y, predicted_y))
+
+    return predicted_y, combined_y
+
+# I am predicting the whole Cleaned directory's CSV
+predict_csv("../../Data/FitnessVR/Cleaned", model)
+
+
+
+
 
 
 

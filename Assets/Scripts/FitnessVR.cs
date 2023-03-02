@@ -3,14 +3,8 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Linq;
-using Unity.Barracuda;
 public class FitnessVR : MonoBehaviour
 {
-
-    private NNModel kerasModel;
-    private Model runtimeModel;
-    private IWorker worker;
-    private string outputLayerName;
 
     OculusSensorReader sensorReader;
     // text to display the detected activity
@@ -267,10 +261,9 @@ public class FitnessVR : MonoBehaviour
                 moving = false;
             }
         }
-        testText.text = Time.deltaTime.ToString();
         text.text = "Reps: " + (int)Math.Floor(reps / 2);
         //get current activity every 2.9 seconds
-        if (updatedData[0].Count >= 100)
+        if (updatedData[0].Count >= 20)
         {
             //currentActivity = GetCurrentActivity(attributes);
 
