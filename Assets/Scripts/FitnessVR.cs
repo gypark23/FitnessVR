@@ -252,6 +252,14 @@ public class FitnessVR : MonoBehaviour
         // Fetch attributes as a dictionary, with <device>_<measure> as a key
         // and Vector3 objects as values
         var attributes = sensorReader.GetSensorReadings();
+        var cl_pos_x = attributes["controller_left_pos"].x;
+        var cl_pos_y = attributes["controller_left_pos"].y;
+        var cl_pos_z = attributes["controller_left_pos"].z;
+        var cr_pos_x = attributes["controller_right_pos"].x;
+        var cr_pos_y = attributes["controller_right_pos"].y;
+        var cr_pos_z = attributes["controller_right_pos"].z;
+
+
 
         // add data from current frame into our data from current session
         GetData(attributes);
@@ -268,7 +276,8 @@ public class FitnessVR : MonoBehaviour
             }
         }
         testText.text = Time.deltaTime.ToString();
-        text.text = "Reps: " + (int)Math.Floor(reps / 2);
+        text.text = "Left: (" + cl_pos_x+ ", " + cl_pos_y + ", " + cl_pos_z + ") Right: ()" + + cr_pos_x+ ", " + cr_pos_y + ", " + cr_pos_z + ")";
+        //text.text = "Reps: " + (int)Math.Floor(reps / 2);
         //get current activity every 2.9 seconds
         if (updatedData[0].Count >= 100)
         {
