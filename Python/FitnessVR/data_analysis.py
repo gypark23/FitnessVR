@@ -180,10 +180,10 @@ def coefficient_of_variation(rowNum: int):
 
 
 # Visualize heaset_pos.y
-fig, ax = plt.subplots(figsize=(9, 4))
-df = pd.read_csv("../../Data/FitnessVR/Train/JUM_P1_02.csv")
-df.plot(ax = ax, x = "time", y = "headset_pos.y", label = "Jumping Jack")
-df = pd.read_csv("../../Data/FitnessVR/Train/CUR_P1_01.csv")
-df.plot(ax = ax, x = "time", y = "headset_pos.y", label = "Curl")
-plt.savefig("../../Reports/FitnessVR/headset_pos.y.png")
-plt.show()
+# fig, ax = plt.subplots(figsize=(9, 4))
+# df = pd.read_csv("../../Data/FitnessVR/Train/JUM_P1_02.csv")
+# df.plot(ax = ax, x = "time", y = "headset_pos.y", label = "Jumping Jack")
+# df = pd.read_csv("../../Data/FitnessVR/Train/CUR_P1_01.csv")
+# df.plot(ax = ax, x = "time", y = "headset_pos.y", label = "Curl")
+# plt.savefig("../../Reports/FitnessVR/headset_pos.y.png")
+# plt.show()

@@ -48,6 +48,7 @@ def createDF2(file:str) -> pd.DataFrame:
     columns = []
 
     df = DA.summarize_sensor_trace2(file)
+    print(df)
     elem = []
     for _, row in df.iterrows():
         elem.extend(row.tolist())
@@ -75,7 +76,7 @@ def learn() -> tree.DecisionTreeClassifier:
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(X, y)
 
-    # valid_df = createDF("Data/Lab2/Validation/")
+    # valid_df = createDF("Data/FitnessVR/Validation/")
     # x_valid, y_valid = valid_df[features_cols], valid_df.category
     # y_pred = clf.predict(x_valid)
     # # print("Accuracy:",metrics.accuracy_score(y_valid, y_pred))
@@ -100,7 +101,6 @@ def predict_shallow(sensor_data: str) -> str:
     columns = df.columns
     # extract significant features
     features_cols = [columns[num * 3 + alpha] for alpha in (0,1,2) for num in (6,7,8,15,21,33,27,19,30)]
-    
     ret = clf.predict(df[features_cols])[0]
     #print(ret)
     return ret

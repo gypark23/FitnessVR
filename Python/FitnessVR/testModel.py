@@ -33,4 +33,4 @@ print(results)
 #import to ONNX model
 initial_type = [('float_input', FloatTensorType([1, 4]))]
 onnx_model = convert_sklearn(model, initial_types=initial_type)
-onnx.save_model(onnx_model, '../../Assets/test.onnx')
+onnx.save_model(onnx_model, '../../Assets/test2.onnx')
