@@ -23,6 +23,8 @@ public class FitnessVR : MonoBehaviour
     private string currentActivity;
 
     private bool moving = false;
+    private bool leftUp = false;
+    private bool rightUp = false;
     private double reps = 0;
 
     // variables to store standard data to compare to real time data
@@ -36,6 +38,9 @@ public class FitnessVR : MonoBehaviour
 
     // collects real time VR data for the most recent 2.9 seconds
     List<List<float>> updatedData = new List<List<float>>();
+
+    List<float> leftHeight = new List<float>();
+    List<float> rightHeight = new List<float>();
 
     // list of activities we want to identify
     List<string> Acts = new List<string> {"STD", "SIT", "JOG", "STR", "OHD", "TWS"};
@@ -263,22 +268,56 @@ public class FitnessVR : MonoBehaviour
 
         // add data from current frame into our data from current session
         GetData(attributes);
-        float avgVelLeft = CalcAvgVel();
+        // float avgVelLeft = CalcAvgVel();
 
-        if (avgVelLeft >= 0.01)
-        {
-            moving = true;
-        } else {
-            if (moving == true)
-            {
-                reps += 1;
-                moving = false;
-            }
-        }
+        // if (avgVelLeft >= 0.01)
+        // {
+        //     moving = true;
+        // } else {
+        //     if (moving == true)
+        //     {
+        //         reps += 1;
+        //         moving = false;
+        //     }
+        // }
         testText.text = Time.deltaTime.ToString();
-        text.text = "Left: (" + cl_pos_x+ ", " + cl_pos_y + ", " + cl_pos_z + ") Right: (" + + cr_pos_x+ ", " + cr_pos_y + ", " + cr_pos_z + ")";
+
+        leftHeight.Add(cl_pos_y)
+        rightHeight.Add(cr_pos_y)
+        
+        bool previousLeftUp = leftUp
+        if (leftHeight.Count>20)
+        {
+            leftHeight.RemoveAt(0);
+            rightHeight.RemoveAt(0);
+            float pastLeftHeight = leftHeight.Take(10).Average();
+            float pastRightHeight = rightHeight.Take(10).Average();
+            float currentLeftHeight = leftHeight.Skip(10).Average();
+            float currentRightHeight = rightHeight.Skip(10).Average();
+
+            if (pastLeftHeight < currentLeftHeight)
+            {
+                leftUp = true;
+            } else {
+                leftUp = false;
+            }
+            if (pastRightHeight < currentRightHeight)
+            {
+                rightUp = true;
+            } else {
+                rightUp = false;
+            }
+            
+        }
+        if (previousLeftUp == false and leftUp == true)
+        {
+            rep++;
+        }
+
+        text.text = "Reps:" + reps;
         //text.text = "Reps: " + (int)Math.Floor(reps / 2);
         //get current activity every 2.9 seconds
+        
         if (updatedData[0].Count >= 100)
         {
             //currentActivity = GetCurrentActivity(attributes);
