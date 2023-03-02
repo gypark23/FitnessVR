@@ -276,7 +276,7 @@ public class FitnessVR : MonoBehaviour
             }
         }
         testText.text = Time.deltaTime.ToString();
-        text.text = "Left: (" + cl_pos_x+ ", " + cl_pos_y + ", " + cl_pos_z + ") Right: ()" + + cr_pos_x+ ", " + cr_pos_y + ", " + cr_pos_z + ")";
+        text.text = "Left: (" + cl_pos_x+ ", " + cl_pos_y + ", " + cl_pos_z + ") Right: (" + + cr_pos_x+ ", " + cr_pos_y + ", " + cr_pos_z + ")";
         //text.text = "Reps: " + (int)Math.Floor(reps / 2);
         //get current activity every 2.9 seconds
         if (updatedData[0].Count >= 100)
