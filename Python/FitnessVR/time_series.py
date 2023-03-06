@@ -58,13 +58,13 @@ def concat_csv(dir):
     return pd.concat(df_list)
 
 # Assume headset_pos.y is one of the significant features
-jum = time_series_average(activity = "JUM")
-jum_posy = jum["headset_pos.y"]
-jum_posy = pd.Series(list(jum_posy), index=list(jum["time"]))
-print(jum_posy)
+# jum = time_series_average(activity = "JUM")
+# jum_posy = jum["headset_pos.y"]
+# jum_posy = pd.Series(list(jum_posy), index=list(jum["time"]))
+# print(jum_posy)
 
-jum_posy.plot(subplots=True)
-plt.show()
+# jum_posy.plot(subplots=True)
+# plt.show()
 
 
 # Prediction Model
@@ -160,7 +160,7 @@ def predict_csv(dir, model = None):
     return predicted_y, combined_y
 
 # I am predicting the whole Cleaned directory's CSV
-predict_csv("../../Data/FitnessVR/Cleaned", model)
+# predict_csv("../../Data/FitnessVR/Cleaned", model)
 
 
 
@@ -170,38 +170,38 @@ predict_csv("../../Data/FitnessVR/Cleaned", model)
 
 
 
-# Time-Series Evaluation for Posture
-# Only use headset_pos.y
+# # Time-Series Evaluation for Posture
+# # Only use headset_pos.y
 
-# Data Cleaning 
-steps = 159
-data = pd.read_csv("../../Data/FitnessVR/Train/JUM_P1_02.csv")
-train, test = data.iloc[:560],  data.iloc[560:]
-data = data.set_index('time')
-# fig, ax=plt.subplots(figsize=(9, 4))
-# train.plot(ax = ax, y = 'headset_pos.y', label='train')
-# test.plot(ax = ax, y = 'headset_pos.y', label='test')
+# # Data Cleaning 
+# steps = 159
+# data = pd.read_csv("../../Data/FitnessVR/Train/JUM_P1_02.csv")
+# train, test = data.iloc[:560],  data.iloc[560:]
+# data = data.set_index('time')
+# # fig, ax=plt.subplots(figsize=(9, 4))
+# # train.plot(ax = ax, y = 'headset_pos.y', label='train')
+# # test.plot(ax = ax, y = 'headset_pos.y', label='test')
 
+# # ax.legend()
+# # plt.show()
+
+# # Predict
+# forecaster = ForecasterAutoreg(regressor = RandomForestRegressor(),lags= 100)
+# forecaster.fit(y=train['headset_pos.y'])
+# predictions = forecaster.predict(steps=steps)
+
+# # Visualize Prediction
+# fig, ax = plt.subplots(figsize=(9, 4))
+# train.plot(ax=ax, y = "headset_pos.y", label='train')
+# test.plot(ax=ax, y = "headset_pos.y", label='test')
+# predictions.plot(ax=ax, x = test, label='predictions')
 # ax.legend()
+# plt.savefig("../../Reports/FitnessVR/time_series_forecast.png")
 # plt.show()
 
-# Predict
-forecaster = ForecasterAutoreg(regressor = RandomForestRegressor(),lags= 100)
-forecaster.fit(y=train['headset_pos.y'])
-predictions = forecaster.predict(steps=steps)
-
-# Visualize Prediction
-fig, ax = plt.subplots(figsize=(9, 4))
-train.plot(ax=ax, y = "headset_pos.y", label='train')
-test.plot(ax=ax, y = "headset_pos.y", label='test')
-predictions.plot(ax=ax, x = test, label='predictions')
-ax.legend()
-plt.savefig("../../Reports/FitnessVR/time_series_forecast.png")
-plt.show()
-
-# Evaluation
-error_mse = mean_squared_error(y_true = test["headset_pos.y"],y_pred = predictions)
-print(f"Test error (mse): {error_mse}")
+# # Evaluation
+# error_mse = mean_squared_error(y_true = test["headset_pos.y"],y_pred = predictions)
+# print(f"Test error (mse): {error_mse}")
 
 
 

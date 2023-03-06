@@ -2,6 +2,8 @@ import socket
 
 import pandas as pd
 from io import StringIO
+import time_series as TS
+import numpy as np
 
 col_names = ['time', 'headset_vel.x', 'headset_vel.y', 'headset_vel.z', 'headset_angularVel.x',
              'headset_angularVel.y', 'headset_angularVel.z', 'headset_pos.x', 'headset_pos.y',
@@ -32,6 +34,9 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(server_address)
 server_socket.listen(1)
 
+print("Deep Learning Model Constructing...")
+model = TS.create_LSTM()
+print("Model Created")
 
 print("Waiting for connection...")
 client_socket, client_address = server_socket.accept()
@@ -44,7 +49,19 @@ while True:
             string_data = data.decode()
             # print(string_data)
             df_data = string_to_dataframe(string_data)
-            print(df_data)
+
+
+            #DF preprocessing for Deep Learning Model
+            X = df_data.values
+            timestep = 1 #
+            num_samples = X.shape[0] // timestep
+            num_timesteps = timestep
+            num_features = X.shape[1]
+            X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
+
+            #Predict
+            y_pred = np.around(model.predict(X)).astype(int)
+            print(y_pred)
 # received_data = b''
 # remaining_bytes = 17279
 # while remaining_bytes > 0:
