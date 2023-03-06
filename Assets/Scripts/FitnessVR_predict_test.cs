@@ -131,7 +131,7 @@ public class FitnessVR_predict_test : MonoBehaviour
             GetData(attributes);
             // add time to updatedData
             
-            updatedData[0].Add(time);
+            updatedData[0].Add(time * 1000);
 
             //if (updatedData[0].Count == 144){ // assuming 72 HZ, send 2 seconds of data
             // Convert the variable to a byte array and send it to your computer
