@@ -41,7 +41,7 @@ public class FitnessVR_predict_test : MonoBehaviour
         text = GetComponent<TextMesh>();
         
         // Connect to your computer's IP address on a specific port
-        client = new TcpClient("10.150.10.209", 1234);
+        client = new TcpClient("10.150.108.174", 1234);
         stream = client.GetStream();
         
         testText.text = "Hello";
@@ -129,13 +129,14 @@ public class FitnessVR_predict_test : MonoBehaviour
         time += Time.deltaTime;
         updatedData[0].Add(time);
 
-        if (updatedData[0].Count >= 144){ // assuming 72 HZ, send 2 seconds of data
+        if (updatedData[0].Count == 144){ // assuming 72 HZ, send 2 seconds of data
             // Convert the variable to a byte array and send it to your computer
             string outputString = ConvertListToString(updatedData);
             byte[] data = Encoding.ASCII.GetBytes(outputString);
             //stream.Write(data, 0, data.Length);
             byte[] data2 = Encoding.ASCII.GetBytes(data.Length.ToString());
-            stream.Write(data2, 0, data2.Length); TO FIND LENGTH OF STRING
+            text.text = data.Length.ToString();
+            stream.Write(data2, 0, data2.Length); //TO FIND LENGTH OF STRING
 
 
             // clear all data
@@ -148,8 +149,8 @@ public class FitnessVR_predict_test : MonoBehaviour
 
         
 
-        testText.text = Time.deltaTime.ToString();
-        text.text = "TEST";
+        //testText.text = Time.deltaTime.ToString();
+        //text.text = "TEST";
         
         
     }

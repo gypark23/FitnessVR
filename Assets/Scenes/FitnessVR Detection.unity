@@ -879,6 +879,7 @@ GameObject:
   - component: {fileID: 777542757}
   - component: {fileID: 777542756}
   - component: {fileID: 777542758}
+  - component: {fileID: 777542759}
   m_Layer: 0
   m_Name: Test
   m_TagString: Untagged
@@ -972,9 +973,23 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 777542752}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e431029bfb9be5a4ab210e479527ccd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 0}
+  testText: {fileID: 777542756}
+--- !u!114 &777542759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777542752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 812f6a7f6dcce487598af4fecae298e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 0}
@@ -1545,7 +1560,7 @@ GameObject:
   - component: {fileID: 1180409881}
   - component: {fileID: 1180409880}
   - component: {fileID: 1180409883}
-  - component: {fileID: 1180409884}
+  - component: {fileID: 1180409885}
   m_Layer: 0
   m_Name: Activity Sign
   m_TagString: Untagged
@@ -1659,7 +1674,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 1180409881}
   testText: {fileID: 0}
---- !u!114 &1180409884
+--- !u!114 &1180409885
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1668,7 +1683,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1180409878}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7155cc17484cd3d4b842bb3e8aa1b772, type: 3}
+  m_Script: {fileID: 11500000, guid: 812f6a7f6dcce487598af4fecae298e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   text: {fileID: 1180409881}
