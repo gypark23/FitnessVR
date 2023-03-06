@@ -42,26 +42,33 @@ print("Waiting for connection...")
 client_socket, client_address = server_socket.accept()
 print(f"Connected to {client_address}")
     
-while True:
-    data = client_socket.recv(1024)
-    if data:
-            # Convert the byte array to a string and print it
-            string_data = data.decode()
-            # print(string_data)
-            df_data = string_to_dataframe(string_data)
+
+# Send a string to the client
+string_to_send = "Hello, Unity!"
+string_bytes = string_to_send.encode("utf-8")  # Convert the string to bytes
+client_socket.sendall(len(string_bytes).to_bytes(4, byteorder='big'))  # Send the message length as a 4-byte integer
+client_socket.sendall(string_bytes)  # Send the message bytes
+
+# while True:
+#     data = client_socket.recv(1024)
+#     if data:
+#             # Convert the byte array to a string and print it
+#             string_data = data.decode()
+#             # print(string_data)
+#             df_data = string_to_dataframe(string_data)
 
 
-            #DF preprocessing for Deep Learning Model
-            X = df_data.values
-            timestep = 1 #
-            num_samples = X.shape[0] // timestep
-            num_timesteps = timestep
-            num_features = X.shape[1]
-            X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
+#             #DF preprocessing for Deep Learning Model
+#             X = df_data.values
+#             timestep = 1 #
+#             num_samples = X.shape[0] // timestep
+#             num_timesteps = timestep
+#             num_features = X.shape[1]
+#             X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
 
-            #Predict
-            y_pred = np.around(model.predict(X)).astype(int)
-            print(y_pred)
+#             #Predict
+#             y_pred = np.around(model.predict(X)).astype(int)
+#             print(y_pred)
 # received_data = b''
 # remaining_bytes = 17279
 # while remaining_bytes > 0:
