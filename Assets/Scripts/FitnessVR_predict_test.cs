@@ -120,37 +120,37 @@ public class FitnessVR_predict_test : MonoBehaviour
     void Update()
     {
         sensorReader.RefreshTrackedDevices();
-        // time += Time.deltaTime;
-        // secondsCount += Time.deltaTime;
-        // if (secondsCount > 2)
-        // {
-        //     // Fetch attributes as a dictionary, with <device>_<measure> as a key
-        //     // and Vector3 objects as values
-        //     var attributes = sensorReader.GetSensorReadings();
-        //     // add data from current frame into our data from current session
-        //     GetData(attributes);
-        //     // add time to updatedData
+        time += Time.deltaTime;
+        secondsCount += Time.deltaTime;
+        if (secondsCount > 2)
+        {
+            // Fetch attributes as a dictionary, with <device>_<measure> as a key
+            // and Vector3 objects as values
+            var attributes = sensorReader.GetSensorReadings();
+            // add data from current frame into our data from current session
+            GetData(attributes);
+            // add time to updatedData
             
-        //     updatedData[0].Add(time * 1000);
+            updatedData[0].Add(time * 1000);
 
-        //     //if (updatedData[0].Count == 144){ // assuming 72 HZ, send 2 seconds of data
-        //     // Convert the variable to a byte array and send it to your computer
-        //     string outputString = ConvertListToString(updatedData);
-        //     byte[] data = Encoding.ASCII.GetBytes(outputString);
-        //     stream.Write(data, 0, data.Length);
-        //     // byte[] data2 = Encoding.ASCII.GetBytes(data.Length.ToString());
-        //     // text.text = data.Length.ToString();
-        //     // stream.Write(data2, 0, data2.Length); //TO FIND LENGTH OF STRING
+            //if (updatedData[0].Count == 144){ // assuming 72 HZ, send 2 seconds of data
+            // Convert the variable to a byte array and send it to your computer
+            string outputString = ConvertListToString(updatedData);
+            byte[] data = Encoding.ASCII.GetBytes(outputString);
+            stream.Write(data, 0, data.Length);
+            // byte[] data2 = Encoding.ASCII.GetBytes(data.Length.ToString());
+            // text.text = data.Length.ToString();
+            // stream.Write(data2, 0, data2.Length); //TO FIND LENGTH OF STRING
 
 
-        //     // clear all data
-        //     for (int i = 0; i < 37; i++)
-        //     {
-        //         //time = 0.0f;
-        //         updatedData[i].Clear();
-        //     }
-        //     secondsCount = 0.0f;
-        // }
+            // clear all data
+            for (int i = 0; i < 37; i++)
+            {
+                //time = 0.0f;
+                updatedData[i].Clear();
+            }
+            secondsCount = 0.0f;
+        }
         // Receive a string from the server
         byte[] lengthBytes = new byte[4];
         stream.Read(lengthBytes, 0, 4);  // Read the 4-byte message length
@@ -159,7 +159,8 @@ public class FitnessVR_predict_test : MonoBehaviour
         stream.Read(messageBytes, 0, length);  // Read the message bytes
         string message = System.Text.Encoding.UTF8.GetString(messageBytes);  // Convert the message bytes to a string
         //Debug.Log("Received message: " + message);
-        text.text = message;
+        if (message.Length > 0)
+            text.text = message;
 
         
 
