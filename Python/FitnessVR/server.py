@@ -27,7 +27,7 @@ def string_to_dataframe(s):
     return df
 
 
-server_address = ('10.0.0.140', 1234)
+server_address = ('10.150.108.174', 1234)
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(server_address)
 server_socket.listen(1)
@@ -37,21 +37,26 @@ print("Waiting for connection...")
 client_socket, client_address = server_socket.accept()
 print(f"Connected to {client_address}")
     
-received_data = b''
-remaining_bytes = 17279
-while remaining_bytes > 0:
-    chunk_size = min(remaining_bytes, 1024)
-    data = client_socket.recv(chunk_size)
-    if not data:
-        break  # the socket has been closed by the other end
-    received_data += data
-    remaining_bytes -= len(data)
+data = client_socket.recv(1024)
+if data:
+        # Convert the byte array to a string and print it
+        string_data = data.decode()
+        print(string_data)
+# received_data = b''
+# remaining_bytes = 17279
+# while remaining_bytes > 0:
+#     chunk_size = min(remaining_bytes, 1024)
+#     data = client_socket.recv(chunk_size)
+#     if not data:
+#         break  # the socket has been closed by the other end
+#     received_data += data
+#     remaining_bytes -= len(data)
 
 
     
-# Convert the byte array to a string and print it
-string_data = received_data.decode()
-print(string_data)
+# # Convert the byte array to a string and print it
+# string_data = received_data.decode()
+# print(string_data)
 df_data = string_to_dataframe(string_data)
 print(df_data)
         
