@@ -37,11 +37,14 @@ print("Waiting for connection...")
 client_socket, client_address = server_socket.accept()
 print(f"Connected to {client_address}")
     
-data = client_socket.recv(1024)
-if data:
-        # Convert the byte array to a string and print it
-        string_data = data.decode()
-        print(string_data)
+while True:
+    data = client_socket.recv(1024)
+    if data:
+            # Convert the byte array to a string and print it
+            string_data = data.decode()
+            # print(string_data)
+            df_data = string_to_dataframe(string_data)
+            print(df_data)
 # received_data = b''
 # remaining_bytes = 17279
 # while remaining_bytes > 0:
@@ -57,8 +60,7 @@ if data:
 # # Convert the byte array to a string and print it
 # string_data = received_data.decode()
 # print(string_data)
-df_data = string_to_dataframe(string_data)
-print(df_data)
+
         
 
         
