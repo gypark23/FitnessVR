@@ -18,6 +18,8 @@ public class FitnessVR_predict_test : MonoBehaviour
     private float secondsCount;
     // string to store current activity
     private string currentActivity;
+    private int frame;
+    private bool sent;
 
     private TcpClient client;
     private NetworkStream stream;
@@ -45,6 +47,8 @@ public class FitnessVR_predict_test : MonoBehaviour
         client = new TcpClient("10.150.108.174", 1234);
         stream = client.GetStream();
         
+        frame = 0;
+        sent = false;
         testText.text = "Hello";
     }
 
@@ -150,17 +154,29 @@ public class FitnessVR_predict_test : MonoBehaviour
                 updatedData[i].Clear();
             }
             secondsCount = 0.0f;
+            sent = true;
         }
-        // Receive a string from the server
-        byte[] lengthBytes = new byte[4];
-        stream.Read(lengthBytes, 0, 4);  // Read the 4-byte message length
-        int length = BitConverter.ToInt32(lengthBytes, 0);
-        byte[] messageBytes = new byte[length];
-        stream.Read(messageBytes, 0, length);  // Read the message bytes
-        string message = System.Text.Encoding.UTF8.GetString(messageBytes);  // Convert the message bytes to a string
-        //Debug.Log("Received message: " + message);
-        if (message.Length > 0)
-            text.text = message;
+
+        if (sent == true)
+        {
+            frame++;
+        }
+        if (frame > 72)
+        {
+            frame = 0;
+            sent = false;
+            // Receive a string from the server
+            byte[] lengthBytes = new byte[4];
+            stream.Read(lengthBytes, 0, 4);  // Read the 4-byte message length
+            int length = BitConverter.ToInt32(lengthBytes, 0);
+            byte[] messageBytes = new byte[length];
+            stream.Read(messageBytes, 0, length);  // Read the message bytes
+            string message = System.Text.Encoding.UTF8.GetString(messageBytes);  // Convert the message bytes to a string
+            //Debug.Log("Received message: " + message);
+            if (message.Length > 0)
+                text.text = message;
+        }
+        
 
         
 
