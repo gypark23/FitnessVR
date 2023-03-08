@@ -1,7 +1,7 @@
 import socket
 import random
 import pandas as pd
-import time_series as TS
+#import time_series as TS
 import numpy as np
 
 col_names = ['time', 'headset_vel.x', 'headset_vel.y', 'headset_vel.z', 'headset_angularVel.x',
@@ -24,9 +24,9 @@ def string_to_dataframe(s):
     
     return df
 
-print("Deep Learning Model Constructing...")
-model = TS.create_LSTM()
-print("Model Created")
+# print("Deep Learning Model Constructing...")
+# model = TS.create_LSTM()
+# print("Model Created")
 
 host, port = "192.168.1.22", 25001
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,25 +39,26 @@ while True:
         # convert byte array to string and then dataframe
         string_data = data.decode()
         df_data = string_to_dataframe(string_data)
+        print(df_data)
 
-        #DF preprocessing for Deep Learning Model
-        X = df_data.values
-        timestep = 1 #
-        num_samples = X.shape[0] // timestep
-        num_timesteps = timestep
-        num_features = X.shape[1]
-        X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
+        # #DF preprocessing for Deep Learning Model
+        # X = df_data.values
+        # timestep = 1 #
+        # num_samples = X.shape[0] // timestep
+        # num_timesteps = timestep
+        # num_features = X.shape[1]
+        # X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
 
-        #Predict
-        y_pred = np.around(model.predict(X)).astype(int)
+        # #Predict
+        # y_pred = np.around(model.predict(X)).astype(int)
         
-        if y_pred[0] == 0:
-                prediction = "curl"
-        else:
-                prediction = "jumping jacks"
-        # num = random.randint(0,1)
-        # if num == 0:
-        #     exercise = "curl"
+        # if y_pred[0] == 0:
+        #         prediction = "curl"
         # else:
-        #     exercise = "jumping jack"
+        #         prediction = "jumping jacks"
+        num = random.randint(0,1)
+        if num == 0:
+            prediction = "curl"
+        else:
+            prediction = "jumping jack"
         sock.sendall(prediction.encode("UTF-8")) #Converting string to Byte, and sending it to C#
