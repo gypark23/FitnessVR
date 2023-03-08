@@ -10,7 +10,7 @@ public class FitnessVRDetector : MonoBehaviour
 {
     OculusSensorReader sensorReader;
     Thread mThread;
-    public string connectionIP = "192.168.1.22";
+    public string connectionIP = "10.150.112.141";
     public int connectionPort = 25001;
     IPAddress localAdd;
     TcpListener listener;
@@ -19,6 +19,7 @@ public class FitnessVRDetector : MonoBehaviour
     public TextMesh text;
 
     float time;
+    float timer;
 
     string exercise;
     private List<List<float>> updatedData = new List<List<float>>();
@@ -28,6 +29,12 @@ public class FitnessVRDetector : MonoBehaviour
     private void Update()
     {
         time += Time.deltaTime;
+        timer += Time.deltaTime;
+        if (timer > 2.0f)
+        {
+            timer = 0.0f;
+            SendAndReceiveData();
+        }
         text.text = exercise; //assigning exercise in SendAndReceiveData()
     }
 
@@ -35,9 +42,11 @@ public class FitnessVRDetector : MonoBehaviour
     {
         sensorReader = new OculusSensorReader();
         time = 0.0f;
-        ThreadStart ts = new ThreadStart(GetInfo);
-        mThread = new Thread(ts);
-        mThread.Start();
+        timer = 0.0f;
+        // ThreadStart ts = new ThreadStart(GetInfo);
+        // mThread = new Thread(ts);
+        // mThread.Start();
+        GetInfo();
     }
 
     // convert Vec3 into a 2-D array of all its components
@@ -107,19 +116,19 @@ public class FitnessVRDetector : MonoBehaviour
         listener.Start();
 
         client = listener.AcceptTcpClient();
-
+        text.text = "Connected";
         for (int i = 0; i < 37; i++)
         {
             updatedData.Add(new List<float>());
         }
 
-        running = true;
-        while (running)
-        {
-            Thread.Sleep(2000);
-            SendAndReceiveData();
-        }
-        listener.Stop();
+        // running = true;
+        // while (running)
+        // {
+        //     Thread.Sleep(2000);
+        //     SendAndReceiveData();
+        // }
+        // listener.Stop();
     }
 
     void SendAndReceiveData()
