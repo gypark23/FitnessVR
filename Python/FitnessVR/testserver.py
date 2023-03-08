@@ -28,10 +28,10 @@ def string_to_dataframe(s):
 # model = TS.create_LSTM()
 # print("Model Created")
 
-host, port = "192.168.1.22", 25001
+host, port = "10.150.112.141", 25001
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((host, port))
-
+print("Connected")
 
 while True:
     data = sock.recv(1024)
