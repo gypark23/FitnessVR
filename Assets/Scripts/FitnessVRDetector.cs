@@ -9,22 +9,26 @@ using System.Threading;
 public class FitnessVRDetector : MonoBehaviour
 {
     OculusSensorReader sensorReader;
-    Thread mThread;
-    private string connectionIP = "10.150.57.172";
+    // variables for network connection
+    private string connectionIP = "10.150.57.172"; // IP address of Oculus
     private int connectionPort = 25001;
     IPAddress localAdd;
     TcpListener listener;
     TcpClient client;
 
+    // text to show activity on
     public TextMesh text;
 
+    // time since the start of the scene
     float time;
+    // timer to send data every 0.5 seconds
     float timer;
 
+    // string to store predicted exercise
     string exercise;
+
+    // list of lists of floats to store one frame of VR motion data
     private List<List<float>> updatedData = new List<List<float>>();
-    
-    bool running;
 
     private void Update()
     {
@@ -43,10 +47,7 @@ public class FitnessVRDetector : MonoBehaviour
         sensorReader = new OculusSensorReader();
         time = 0.0f;
         timer = 0.0f;
-        // ThreadStart ts = new ThreadStart(GetInfo);
-        // mThread = new Thread(ts);
-        // mThread.Start();
-        GetInfo();
+        GetConnection();
     }
 
     // convert Vec3 into a 2-D array of all its components
@@ -92,6 +93,7 @@ public class FitnessVRDetector : MonoBehaviour
         }
     }
 
+    // conver a list of list of motion data to a string
     public static string ConvertListToString(List<List<float>> inputList)
     {
         StringBuilder sb = new StringBuilder();
@@ -102,14 +104,15 @@ public class FitnessVRDetector : MonoBehaviour
             {
                 sb.Append(item.ToString() + " ");
             }
-            sb.Remove(sb.Length - 1, 1); // remove last space
+            sb.Remove(sb.Length - 1, 1); // remove last spaces
             sb.AppendLine();
         }
 
         return sb.ToString();
     }
 
-    void GetInfo()
+    // listen for and accept connection
+    void GetConnection()
     {
         localAdd = IPAddress.Parse(connectionIP);
         listener = new TcpListener(IPAddress.Any, connectionPort);
@@ -117,20 +120,15 @@ public class FitnessVRDetector : MonoBehaviour
 
         client = listener.AcceptTcpClient();
         text.text = "Connected";
+
+        // add empty lists to our variable that stores motion data
         for (int i = 0; i < 37; i++)
         {
             updatedData.Add(new List<float>());
         }
-
-        // running = true;
-        // while (running)
-        // {
-        //     Thread.Sleep(2000);
-        //     SendAndReceiveData();
-        // }
-        // listener.Stop();
     }
 
+    // send most updated motion data and receive a prediction
     void SendAndReceiveData()
     {
         NetworkStream nwStream = client.GetStream();
@@ -146,28 +144,25 @@ public class FitnessVRDetector : MonoBehaviour
         GetData(attributes);
         updatedData[0].Add((time * 1000) % 10000);
         
+        // convert data to string
         string message = ConvertListToString(updatedData);
 
-        //---Sending Data to Host----
-        byte[] myWriteBuffer = Encoding.ASCII.GetBytes(message); //Converting string to byte data
-        nwStream.Write(myWriteBuffer, 0, myWriteBuffer.Length); //Sending the data in Bytes to Python
+        // send data to computer
+        byte[] myWriteBuffer = Encoding.ASCII.GetBytes(message); // converting string to byte data
+        nwStream.Write(myWriteBuffer, 0, myWriteBuffer.Length); // sending the data in bytes to Python
 
-        //}
-
-
-        //---receiving Data from the Host----
-        int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); //Getting data in Bytes from Python
-        string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); //Converting byte data to string
+        // receiving data from computer
+        int bytesRead = nwStream.Read(buffer, 0, client.ReceiveBufferSize); // getting data in bytes from Python
+        string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead); // converting byte data to string
 
         if (dataReceived != null)
         {
-            //---Using received data---
-            exercise = dataReceived; //<-- assigning exercise value from Python
-
-            
+            // update exercise to received prediction
+            exercise = dataReceived;
         }
     }
 
+    // close connections on destroy
     void OnDestroy()
     {
         NetworkStream nwStream = client.GetStream();

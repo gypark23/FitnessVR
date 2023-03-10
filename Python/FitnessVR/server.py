@@ -1,5 +1,4 @@
 import socket
-import random
 import pandas as pd
 import time_series as TS
 import numpy as np
@@ -16,8 +15,8 @@ col_names = ['time', 'headset_vel.x', 'headset_vel.y', 'headset_vel.z', 'headset
              'controller_right_pos.z', 'controller_right_rot.x', 'controller_right_rot.y',
              'controller_right_rot.z']
 
+# Convert a string to a list of lists of floats
 def string_to_dataframe(s):
-    # Convert the string to a list of lists of floats
     list_of_lists = [[float(num) for num in line.split()] for line in s.strip().split('\n')]
     df = pd.DataFrame(data=list_of_lists).T
     df.columns = col_names
@@ -28,20 +27,22 @@ print("Deep Learning Model Constructing...")
 model = TS.create_LSTM()
 print("Model Created")
 
-host, port = "10.150.57.172", 25001
+# Connect to the oculus
+host, port = "10.150.57.172", 25001 # SET host TO IP OF THE OCULUS
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((host, port))
-print("Connected")
+print("Connected to Oculus")
 
 while True:
+    # keep listening for data
     data = sock.recv(1024)
-    if data:
+    if data: # if data is received
         # convert byte array to string and then dataframe
         string_data = data.decode()
         df_data = string_to_dataframe(string_data)
         print(df_data)
 
-        #DF preprocessing for Deep Learning Model
+        # DF preprocessing for Deep Learning Model
         X = df_data.values
         timestep = 1 #
         num_samples = X.shape[0] // timestep
@@ -56,10 +57,5 @@ while True:
                 prediction = "curl"
         else:
                 prediction = "jumping jacks"
-        # num = random.randint(0,1)
-     #    if num == 0:
-     #        prediction = "curl"
-     #    else:
-     #        prediction = "jumping jack"
         print(prediction)
         sock.sendall(prediction.encode("UTF-8")) #Converting string to Byte, and sending it to C#

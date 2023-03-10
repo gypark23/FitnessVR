@@ -7,121 +7,28 @@ public class FitnessVR : MonoBehaviour
 {
 
     OculusSensorReader sensorReader;
-    // text to display the detected activity
+    // text to display the counted reps
     public TextMesh text;
-    // float to detect activity every 2.9 seconds
-    private float secondsCount;
-    // string to store current activity
-    private string currentActivity;
-
+    // variables to count reps
     private bool moving = false;
     private double reps = 0;
 
-    // variables to store standard data to compare to real time data
-    TextAsset standardData;  //standardData.text to access string data
-    List<float> STD = new List<float>();
-    List<float> SIT = new List<float>();
-    List<float> JOG = new List<float>();
-    List<float> STR = new List<float>();
-    List<float> OHD = new List<float>();
-    List<float> TWS = new List<float>();
 
-    // collects real time VR data for the most recent 2.9 seconds
+    // variable to store VR motion data from current session
     List<List<float>> updatedData = new List<List<float>>();
-
-    // list of activities we want to identify
-    List<string> Acts = new List<string> {"STD", "SIT", "JOG", "STR", "OHD", "TWS"};
 
     // Start is called before the first frame update
     void Start()
     {
-        // string modelPath = "model";
-        // runtimeModel = ModelLoader.Load(modelPath);
-        // worker = WorkerFactory.CreateWorker(WorkerFactory.Type.Auto, runtimeModel);
-        // outputLayerName = runtimeModel.outputs[runtimeModel.outputs.Count - 1];
-
-        // Loading the lib for the standard vector of each activity
-        standardData = (TextAsset)Resources.Load("standard");
-        string[] lines = standardData.text.Split('\n');
-
         // Add 36 empty lists to updatedData where we will
         // store a history of real time data
         for (int i = 0; i < 36; i++)
         {
             updatedData.Add(new List<float>());
         }
-        secondsCount = 2.9f;
         sensorReader = new OculusSensorReader();
         text = GetComponent<TextMesh>();
-        
-        // parse standard activity data into a list for each activity
-        for (int i = 0; i < 6; i++)
-        {
-            string line = lines[i];
-            int startIndex = line.IndexOf('[') + 1;
-            int endIndex = line.IndexOf(']');
-            string numbersString = line.Substring(startIndex, endIndex - startIndex);
-            string[] numberStrings = numbersString.Split(", ");
-
-            List<float> numbers = new List<float>();
-            foreach (string numberString in numberStrings)
-            {
-                float number = float.Parse(numberString);
-                if (i == 0)
-                {
-                    STD.Add(number);
-                }
-                else if (i == 1)
-                {
-                    SIT.Add(number);
-                }
-                else if (i == 2)
-                {
-                    JOG.Add(number);
-                }
-                else if (i == 3)
-                {
-                    STR.Add(number);
-                }
-                else if (i == 4)
-                {
-                    OHD.Add(number);
-                }
-                else if (i == 5)
-                {
-                    TWS.Add(number);
-                }
-            }
-        }
-        //Predict();
     }
-
-    // public void Predict()
-    // {
-    //     int batchSize = 1;
-    //     int sequenceLength = 8628;
-    //     int inputSize = 37;
-
-
-
-    //     // Create a Tensor with the flattened data and the specified shape
-    //     Tensor inputTensor = new Tensor(1, sequenceLength, inputSize, 1);
-    //     // Flatten the inputData array into a 1D array
-    //     for (int i = 0; i < batchSize; i++)
-    //     {
-    //         for (int j = 0; j < sequenceLength; j++)
-    //         {
-    //             for (int k = 0; k < inputSize; k++)
-    //             {
-    //                 inputTensor[i, j, k, 1] = UnityEngine.Random.Range(0f, 1f);
-    //             }
-    //         }
-    //     }
-    //     worker.Execute(inputTensor);
-    //     Tensor output = worker.PeekOutput();
-    //     float[] outputData = output.ToReadOnlyArray();
-    //     testText.text = "Output: " + outputData[0];
-    // }
 
     // convert Vec3 into a 2-D array of all its components
     void GetData(Dictionary<string, Vector3> attributes)
@@ -188,56 +95,17 @@ public class FitnessVR : MonoBehaviour
         return vector;
     }
 
-    float CalcAvgVel()
+    // calculate average of mean velocities of the left controller
+    float CalcAvgVelLeft()
     {
         List<float> vector = ProcessData();
         float leftAvg = (Math.Abs(vector[12]) + Math.Abs(vector[13]) + Math.Abs(vector[14])) / 3;
         return leftAvg;
     }
 
-    // calculate the distance between 2 arrays
-    float CalcDist(List<float> StandardVector, List<float> vector)
-    {
-        float dist = 0.0f;
-
-        for (int i = 0; i < vector.Count; i++)
-        {
-            if (i==6||i==7||i==8||i==42||i==43||i==51||i==57||i==69||i==63||i==55||i == 66)
-            {
-                float diff = (StandardVector[i] - vector[i])/StandardVector[i];
-                dist = dist + diff*diff;
-            }
-        }
-        return dist;     
-    }
-
-    // classify by finding the min dist activity
-    string Classify(List<float> vector) 
-    {
-        float dist_STD = CalcDist(STD, vector);
-        float dist_SIT = CalcDist(SIT, vector);
-        float dist_JOG = CalcDist(JOG, vector);
-        float dist_STR = CalcDist(STR, vector);
-        float dist_OHD = CalcDist(OHD, vector);
-        float dist_TWS = CalcDist(TWS, vector);
-
-        List<float> dists = new List<float> {dist_STD, dist_SIT, dist_JOG, dist_STR, dist_OHD, dist_TWS};
-        // int MinIndex = dists.IndexOf(dists, dists.Min());
-        int MinIndex = dists.IndexOf(dists.Min());
-        return Acts[MinIndex];
-    }
-
-    string GetCurrentActivity(Dictionary<string, Vector3> attributes)
-    {
-        List<float> vector = ProcessData();
-        string output = Classify(vector);
-        return output;
-    }
-
     // Update is called once per frame
     void Update()
     {
-        secondsCount -= Time.deltaTime;
         sensorReader.RefreshTrackedDevices();
 
         // Fetch attributes as a dictionary, with <device>_<measure> as a key
@@ -246,8 +114,9 @@ public class FitnessVR : MonoBehaviour
 
         // add data from current frame into our data from current session
         GetData(attributes);
-        float avgVelLeft = CalcAvgVel();
+        float avgVelLeft = CalcAvgVelLeft();
 
+        // when the left controller goes from moving to still, we add a rep
         if (avgVelLeft >= 0.01)
         {
             moving = true;
@@ -258,18 +127,16 @@ public class FitnessVR : MonoBehaviour
                 moving = false;
             }
         }
+        // reps is divided by 2 because one curl involves stopping movement twice
         text.text = "Reps: " + (int)Math.Floor(reps / 2);
-        //get current activity every 2.9 seconds
+        
+        // only store the last 20 frames of data and delete the rest
         if (updatedData[0].Count >= 20)
         {
-            //currentActivity = GetCurrentActivity(attributes);
-
-            // clear updatedData so each update is based on most recent 2.9 seconds
             for (int i = 0; i < 36; i++)
             {
                 updatedData[i].RemoveAt(0);
             }
-            //secondsCount = 2.9f;
         }
     }
 }
