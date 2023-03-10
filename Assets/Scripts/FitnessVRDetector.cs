@@ -10,8 +10,8 @@ public class FitnessVRDetector : MonoBehaviour
 {
     OculusSensorReader sensorReader;
     Thread mThread;
-    public string connectionIP = "10.150.112.141";
-    public int connectionPort = 25001;
+    private string connectionIP = "10.150.57.172";
+    private int connectionPort = 25001;
     IPAddress localAdd;
     TcpListener listener;
     TcpClient client;
@@ -30,7 +30,7 @@ public class FitnessVRDetector : MonoBehaviour
     {
         time += Time.deltaTime;
         timer += Time.deltaTime;
-        if (timer > 2.0f)
+        if (timer > 0.5f)
         {
             timer = 0.0f;
             SendAndReceiveData();
@@ -144,7 +144,7 @@ public class FitnessVRDetector : MonoBehaviour
         sensorReader.RefreshTrackedDevices();
         var attributes = sensorReader.GetSensorReadings();
         GetData(attributes);
-        updatedData[0].Add(time * 1000);
+        updatedData[0].Add((time * 1000) % 10000);
         
         string message = ConvertListToString(updatedData);
 

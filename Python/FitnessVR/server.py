@@ -1,7 +1,6 @@
 import socket
-
+import random
 import pandas as pd
-from io import StringIO
 import time_series as TS
 import numpy as np
 
@@ -17,9 +16,6 @@ col_names = ['time', 'headset_vel.x', 'headset_vel.y', 'headset_vel.z', 'headset
              'controller_right_pos.z', 'controller_right_rot.x', 'controller_right_rot.y',
              'controller_right_rot.z']
 
-
-
-
 def string_to_dataframe(s):
     # Convert the string to a list of lists of floats
     list_of_lists = [[float(num) for num in line.split()] for line in s.strip().split('\n')]
@@ -28,76 +24,42 @@ def string_to_dataframe(s):
     
     return df
 
-
-server_address = ('10.150.108.174', 1234)
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(server_address)
-server_socket.listen(1)
-
 print("Deep Learning Model Constructing...")
 model = TS.create_LSTM()
 print("Model Created")
 
-print("Waiting for connection...")
-client_socket, client_address = server_socket.accept()
-print(f"Connected to {client_address}")
-    
-
-# # Send a string to the client
-# string_to_send = "Hello, Unity!"
-# string_bytes = string_to_send.encode("utf-8")  # Convert the string to bytes
-# client_socket.sendall(len(string_bytes).to_bytes(4, byteorder='big'))  # Send the message length as a 4-byte integer
-# client_socket.sendall(string_bytes)  # Send the message bytes
+host, port = "10.150.57.172", 25001
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((host, port))
+print("Connected")
 
 while True:
-    data = client_socket.recv(1024)
+    data = sock.recv(1024)
     if data:
-            # Convert the byte array to a string and print it
-            string_data = data.decode()
-            # print(string_data)
-            df_data = string_to_dataframe(string_data)
+        # convert byte array to string and then dataframe
+        string_data = data.decode()
+        df_data = string_to_dataframe(string_data)
+        print(df_data)
 
+        #DF preprocessing for Deep Learning Model
+        X = df_data.values
+        timestep = 1 #
+        num_samples = X.shape[0] // timestep
+        num_timesteps = timestep
+        num_features = X.shape[1]
+        X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
 
-            #DF preprocessing for Deep Learning Model
-            X = df_data.values
-            timestep = 1 #
-            num_samples = X.shape[0] // timestep
-            num_timesteps = timestep
-            num_features = X.shape[1]
-            X = X[:num_samples * timestep].reshape(num_samples, num_timesteps, num_features)
-
-            #Predict
-            y_pred = np.around(model.predict(X)).astype(int)
-            
-            if y_pred[0] == 0:
-                 prediction = "curl"
-            else:
-                 prediction = "jumping jacks"
-            string_bytes = prediction.encode("utf-8")  # Convert the string to bytes
-            client_socket.sendall(len(string_bytes).to_bytes(4, byteorder='big'))  # Send the message length as a 4-byte integer
-            client_socket.sendall(string_bytes)  # Send the message bytes
-            
-            #print(y_pred)
-# received_data = b''
-# remaining_bytes = 17279
-# while remaining_bytes > 0:
-#     chunk_size = min(remaining_bytes, 1024)
-#     data = client_socket.recv(chunk_size)
-#     if not data:
-#         break  # the socket has been closed by the other end
-#     received_data += data
-#     remaining_bytes -= len(data)
-
-
-    
-# # Convert the byte array to a string and print it
-# string_data = received_data.decode()
-# print(string_data)
-
+        # Predict
+        y_pred = np.around(model.predict(X)).astype(int)
         
-
-        
-# client_socket.close()
-# server_socket.close()
-    
-    
+        if y_pred[0] == 0:
+                prediction = "curl"
+        else:
+                prediction = "jumping jacks"
+        # num = random.randint(0,1)
+     #    if num == 0:
+     #        prediction = "curl"
+     #    else:
+     #        prediction = "jumping jack"
+        print(prediction)
+        sock.sendall(prediction.encode("UTF-8")) #Converting string to Byte, and sending it to C#

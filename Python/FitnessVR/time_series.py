@@ -109,7 +109,7 @@ def create_LSTM():
     return model
 
 
-model = create_LSTM()
+# model = create_LSTM()
 
 
 

@@ -9,8 +9,6 @@ public class FitnessVR : MonoBehaviour
     OculusSensorReader sensorReader;
     // text to display the detected activity
     public TextMesh text;
-
-    public TextMesh testText;
     // float to detect activity every 2.9 seconds
     private float secondsCount;
     // string to store current activity
@@ -96,7 +94,6 @@ public class FitnessVR : MonoBehaviour
             }
         }
         //Predict();
-        testText.text = "Hello";
     }
 
     // public void Predict()
