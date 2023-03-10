@@ -68,21 +68,22 @@ def learn() -> tree.DecisionTreeClassifier:
     train_df = createDF()
     columns = train_df.columns
     
-    # features from classify.py; I included all mean, variance, peaks for these -Kyu
-    features_cols = [columns[num * 3 + alpha] for alpha in (0,1,2) for num in (6,7,8,15,21,33,27,19,30)]
-    
+    # extract significant features
+    features_cols = [columns[7 * 3 + alpha] for alpha in (0,1,2)] # only consider h_pos.y
+    # features_cols = [columns[num * 3 + alpha] for alpha in (0,1,2) for num in range(36)] # consider all features
+
     X = train_df[features_cols]
     y = train_df.category
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(X, y)
 
-    # valid_df = createDF("Data/FitnessVR/Validation/")
-    # x_valid, y_valid = valid_df[features_cols], valid_df.category
-    # y_pred = clf.predict(x_valid)
-    # # print("Accuracy:",metrics.accuracy_score(y_valid, y_pred))
-    # cmat = confusion_matrix(y_valid, y_pred) 
-    # print(cmat.diagonal()/cmat.sum(axis=1))
-    # print(metrics.classification_report(y_valid, y_pred))
+    valid_df = createDF("Data/FitnessVR/Validation/")
+    x_valid, y_valid = valid_df[features_cols], valid_df.category
+    y_pred = clf.predict(x_valid)
+    print("TIME: " + str(time.time() - start))
+    cmat = confusion_matrix(y_valid, y_pred) 
+    print(cmat.diagonal()/cmat.sum(axis=1))
+    print(metrics.classification_report(y_valid, y_pred))
     return clf
 
 # Global variable so that you don't spend much time
@@ -100,7 +101,8 @@ def predict_shallow(sensor_data: str) -> str:
     df = createDF2(sensor_data)
     columns = df.columns
     # extract significant features
-    features_cols = [columns[num * 3 + alpha] for alpha in (0,1,2) for num in (6,7,8,15,21,33,27,19,30)]
+    features_cols = [columns[7 * 3 + alpha] for alpha in (0,1,2)] # only consider h_pos.y
+    # features_cols = [columns[num * 3 + alpha] for alpha in (0,1,2) for num in range(36)] # consider all features
     ret = clf.predict(df[features_cols])[0]
     #print(ret)
     return ret
