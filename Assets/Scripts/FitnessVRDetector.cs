@@ -142,6 +142,9 @@ public class FitnessVRDetector : MonoBehaviour
         sensorReader.RefreshTrackedDevices();
         var attributes = sensorReader.GetSensorReadings();
         GetData(attributes);
+        // Because our time series model was only constructed for first 10 seconds
+        // we modulo anything that is beyond 10 seconds. 
+        // We admit this may not be the best/correct approach to do it
         updatedData[0].Add((time * 1000) % 10000);
         
         // convert data to string
